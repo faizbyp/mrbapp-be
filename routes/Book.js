@@ -1,4 +1,4 @@
-const BookReqController = require("../controllers/BookReqControllers");
+const BookReqController = require("../controllers/BookReqController");
 const BookCheck = require("../middleware/bookcheck");
 const express = require("express");
 const router = express.Router();

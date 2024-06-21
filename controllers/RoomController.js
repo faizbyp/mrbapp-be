@@ -1,7 +1,7 @@
 const DbConn = require("../helper/DbTransaction");
 const db = require("../config/db");
 
-const RoomControllers = {
+const RoomController = {
   getAllRoom: async (req, res) => {
     const Client = new DbConn();
     const client = await Client.initConnection();
@@ -85,4 +85,4 @@ const RoomControllers = {
   },
 };
 
-module.exports = RoomControllers;
+module.exports = RoomController;

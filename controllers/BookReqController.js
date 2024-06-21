@@ -9,14 +9,14 @@ const BookReqCol = [
   "created_at",
   "book_date",
   "time_start",
-  "duration",
+  "time_end",
   "agenda",
   "prtcpt_ctr",
   "remark",
   "is_active",
 ];
 
-const BookReqControllers = {
+const BookReqController = {
   createBook: async (req, res) => {
     const Client = new DbConn();
     await Client.init();
@@ -24,9 +24,7 @@ const BookReqControllers = {
     const today = new Date();
     const id_book = uuid.uuid();
     const id_notif = uuid.uuid();
-    const bookDate = moment(
-      new Date(`${data.book_date} ${data.time_start}`)
-    ).subtract(15, "m");
+    const bookDate = moment(new Date(`${data.book_date} ${data.time_start}`)).subtract(15, "m");
     await Notif.CreateNewCron(
       bookDate,
       "Meeting Check In Reminder",
@@ -41,7 +39,7 @@ const BookReqControllers = {
       created_at: today,
       book_date: data.book_date,
       time_start: data.time_start,
-      duration: data.duration,
+      time_end: data.time_end,
       agenda: data.agenda,
       prtcpt_ctr: data.participant,
       remark: data.remark,
@@ -77,11 +75,7 @@ const BookReqControllers = {
       // if(minDiff < 15 ) {
       //   throw new Error('EXCEED EDIT') ;
       // }
-      const [query, value] = Client.updateQuery(
-        editBookVal,
-        { id_book: id_book },
-        "req_book"
-      );
+      const [query, value] = Client.updateQuery(editBookVal, { id_book: id_book }, "req_book");
       const updateData = await client.query(query, value);
       res.status(200).send({
         message: `${id_book} is updated`,
@@ -105,11 +99,7 @@ const BookReqControllers = {
       const id_book = req.body.id_book;
       await client.beginTransaction();
 
-      const [query, value] = Client.updateQuery(
-        { is_active: 0 },
-        { id_book: id_book },
-        "req_book"
-      );
+      const [query, value] = Client.updateQuery({ is_active: 0 }, { id_book: id_book }, "req_book");
       const updateData = await client.query(query, value);
       res.status(200).send({
         message: `${id_book} is cancled`,
@@ -169,11 +159,11 @@ const BookReqControllers = {
           is_active,
           DATE_FORMAT(time_start, '%H:%i') as time_start,
           DATE_FORMAT(book_date, '%Y-%m-%d') as book_date,
-          DATE_FORMAT(DATE_ADD(time_start, INTERVAL duration HOUR ), '%H:%i') as time_end,
+          DATE_FORMAT(time_end, '%H:%i') as time_end,
           TIMESTAMP (
           CONCAT( book_date, ' ', time_start )) AS start_time,
           TIMESTAMP (
-          CONCAT( book_date, ' ', DATE_FORMAT(DATE_ADD(time_start, INTERVAL duration HOUR ), '%T'))) AS end_time,
+          CONCAT( book_date, ' ', time_end)) AS end_time,
           TIMESTAMP ( TIMESTAMP (
           CONCAT( book_date, ' ', time_start )) - INTERVAL 15 MINUTE ) AS upcoming_time 
         FROM
@@ -244,4 +234,4 @@ const BookReqControllers = {
   },
 };
 
-module.exports = BookReqControllers;
+module.exports = BookReqController;

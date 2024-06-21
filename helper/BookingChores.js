@@ -39,7 +39,7 @@ BookingChores.CleanUp = async () => {
     const res = await client.query(`SELECT
       *
     FROM
-      ( SELECT id_book, id_user, id_ruangan, book_date, time_start, duration, is_active, DATE_ADD( time_start, INTERVAL duration HOUR ) AS time_end FROM req_book ) BOOK 
+      ( SELECT id_book, id_user, id_ruangan, book_date, time_start, time_end, is_active FROM req_book ) BOOK 
     WHERE
       TIMESTAMP (CONCAT( BOOK.book_date, ' ', BOOK.time_end )) < NOW() AND IS_ACTIVE = 1`);
     const expiredBook = res[0];
