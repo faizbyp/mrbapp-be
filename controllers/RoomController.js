@@ -16,6 +16,7 @@ const RoomController = {
       client.release();
     }
   },
+
   getAllRoomWithFac: async (req, res) => {
     const Client = new DbConn();
     const client = await Client.initConnection();
@@ -78,6 +79,49 @@ const RoomController = {
       res.status(200).send({ data: roomFac });
     } catch (error) {
       console.error(error);
+      res.status(500).send({ message: error.message });
+    } finally {
+      client.release();
+    }
+  },
+
+  getAvailableRoom: async (req, res) => {
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+
+    const data = req.body.data;
+    const payload = {
+      book_date: data.book_date,
+      time_start: data.time_start,
+      time_end: data.time_end,
+      prtcpt_ctr: data.participant,
+    };
+
+    try {
+      const getRoom = await client.query(
+        `SELECT mst_room.id_ruangan, mst_room.nama, mst_room.kapasitas FROM mst_room
+          WHERE mst_room.kapasitas >= ${payload.prtcpt_ctr}
+		      AND mst_room.is_active = 'T'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM 
+					  req_book
+            WHERE 
+					  req_book.id_ruangan = mst_room.id_ruangan
+					  AND req_book.book_date = ${payload.book_date}
+					  AND req_book.is_active = 'T'
+					  AND (
+              (req_book.time_start < '${payload.time_start}' AND req_book.time_end > '${payload.time_end}')
+					  )
+          )
+          ORDER BY mst_room.kapasitas`
+      );
+      res.status(200).send({
+        message: "Success get avail room",
+        data: getRoom[0],
+      });
+    } catch (error) {
+      console.log(error);
       res.status(500).send({ message: error.message });
     } finally {
       client.release();
