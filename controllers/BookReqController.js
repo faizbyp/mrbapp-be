@@ -44,7 +44,7 @@ const BookReqController = {
       prtcpt_ctr: data.participant,
       remark: data.remark,
       id_book: id_book,
-      is_active: 1,
+      is_active: "T",
       id_notif: id_notif,
     };
     try {
@@ -99,7 +99,11 @@ const BookReqController = {
       const id_book = req.body.id_book;
       await client.beginTransaction();
 
-      const [query, value] = Client.updateQuery({ is_active: 0 }, { id_book: id_book }, "req_book");
+      const [query, value] = Client.updateQuery(
+        { is_active: "F" },
+        { id_book: id_book },
+        "req_book"
+      );
       const updateData = await client.query(query, value);
       res.status(200).send({
         message: `${id_book} is cancled`,
@@ -138,7 +142,7 @@ const BookReqController = {
         MR.nama as nama_ruangan,
         MR.id_ruangan as id_room,
         agenda,
-        is_active,
+        BK.is_active,
         time_start,
         time_end,
         book_date,
@@ -146,7 +150,7 @@ const BookReqController = {
           WHEN NOW() > upcoming_time AND NOW() < start_time THEN 'Oncoming'
           WHEN NOW() > start_time AND NOW() < end_time THEN 'Ongoing'
           WHEN NOW() < start_time THEN 'Prospective'
-          WHEN NOW() > end_time OR is_active = 0 THEN 'Inactive' 
+          WHEN NOW() > end_time OR BK.is_active = 'F' THEN 'Inactive' 
           ELSE ''
         END AS status
       FROM
@@ -194,7 +198,7 @@ const BookReqController = {
         throw Error("Request Error");
       }
       const get = await Client.select(
-        "SELECT * FROM req_book where id_ruangan = ? and is_active = 1",
+        "SELECT * FROM req_book where id_ruangan = ? and is_active = 'F'",
         [roomId]
       );
       const books = get[0];

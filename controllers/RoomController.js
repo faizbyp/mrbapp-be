@@ -56,9 +56,30 @@ const RoomController = {
         throw Error("parameter is empty");
       }
       const getroom = await client.query(
-        `SELECT id, id_ruangan, kapasitas, nama, lokasi FROM mst_room WHERE id_ruangan NOT IN ( SELECT id_ruangan FROM req_book WHERE +  
-           (curtime() BETWEEN time_start AND DATE_ADD(time_start, INTERVAL duration HOUR) OR DATE_ADD(NOW(), INTERVAL ? HOUR) BETWEEN 
-           time_start AND DATE_ADD(time_start, INTERVAL duration HOUR)) AND book_date = DATE_FORMAT(NOW(), '%Y-%m-%d'))`,
+        `SELECT 
+            id, 
+            id_ruangan, 
+            kapasitas, 
+            nama, 
+            lokasi 
+          FROM 
+            mst_room 
+          WHERE 
+            id_ruangan NOT IN (
+              SELECT 
+                id_ruangan 
+              FROM 
+                req_book 
+              WHERE 
+                (
+                  curtime() BETWEEN time_start 
+                  AND time_end 
+                  OR DATE_ADD(NOW(), INTERVAL ? HOUR) BETWEEN time_start 
+                  AND time_end 
+                  AND book_date = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                )
+            )
+        `,
         [hours]
       );
       const rooms = getroom[0];
@@ -109,7 +130,7 @@ const RoomController = {
             WHERE 
 					  req_book.id_ruangan = mst_room.id_ruangan
 					  AND req_book.book_date = ${payload.book_date}
-					  AND req_book.is_active = 'T'
+					  AND req_book.is_active = 'F'
 					  AND (
               (req_book.time_start < '${payload.time_start}' AND req_book.time_end > '${payload.time_end}')
 					  )

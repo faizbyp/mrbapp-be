@@ -21,7 +21,7 @@ const checkBook = async (req, res, next) => {
     WHERE
       id_ruangan = ?
     AND book_date = ?
-    AND is_active = 1
+    AND is_active = 'T'
     AND (
       ? BETWEEN time_start 
       AND ADDTIME( TIME( time_start ), TIME( time_end ) ) 

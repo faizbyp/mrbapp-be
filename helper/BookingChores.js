@@ -41,7 +41,7 @@ BookingChores.CleanUp = async () => {
     FROM
       ( SELECT id_book, id_user, id_ruangan, book_date, time_start, time_end, is_active FROM req_book ) BOOK 
     WHERE
-      TIMESTAMP (CONCAT( BOOK.book_date, ' ', BOOK.time_end )) < NOW() AND IS_ACTIVE = 1`);
+      TIMESTAMP (CONCAT( BOOK.book_date, ' ', BOOK.time_end )) < NOW() AND IS_ACTIVE = 'T'`);
     const expiredBook = res[0];
     if (expiredBook.length === 0) {
       return "No expired booking, everything is clear";
@@ -66,7 +66,7 @@ BookingChores.CleanUp = async () => {
     let userPen = resuser[0].map((item) => `'${item.id_user}'`);
     // let upPen = await BookingChores.userPenalty(userPen, client);
     const resUpBook = await client.query(
-      `UPDATE req_book SET is_active = 0 WHERE id_book in (${bookId.join(",")})`
+      `UPDATE req_book SET is_active = 'F' WHERE id_book in (${bookId.join(",")})`
     );
     await client.commit();
     return "success cleaning booking";
