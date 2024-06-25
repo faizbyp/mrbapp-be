@@ -24,12 +24,12 @@ const checkBook = async (req, res, next) => {
     AND is_active = 'T'
     AND (
       ? BETWEEN time_start 
-      AND ADDTIME( TIME( time_start ), TIME( time_end ) ) 
-      OR ADDTIME( TIME( ? ), TIME( ? ) ) BETWEEN time_start 
-    AND ADDTIME( TIME( time_start ), TIME( time_end ) ) 
+      AND time_end 
+      OR ? BETWEEN time_start 
+    AND time_end 
     ) ;
     `,
-      [room, book_date, time_start, time_start, time_end]
+      [room, book_date, time_start, time_end]
     );
     if (isBooked[0].length > 0) {
       res.status(400).send({
