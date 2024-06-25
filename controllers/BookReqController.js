@@ -21,7 +21,17 @@ const BookReqController = {
     const Client = new DbConn();
     await Client.init();
     const data = req.body.data;
+    const ai = await Client.select("SELECT id from req_book order by id desc limit 1;");
+    const ai_book = ai[0][0].id % 999;
+    console.log(ai_book);
     const today = new Date();
+    const month = today.getMonth() + 1;
+    const id_booking =
+      "RM" +
+      today.getFullYear().toString().slice(-2) +
+      ("0" + month).slice(-2) +
+      ("0" + today.getDate()).slice(-2) +
+      ("000" + ai_book).slice(-3);
     const id_book = uuid.uuid();
     const id_notif = uuid.uuid();
     const bookDate = moment(new Date(`${data.book_date} ${data.time_start}`)).subtract(15, "m");
@@ -46,6 +56,7 @@ const BookReqController = {
       id_book: id_book,
       is_active: "T",
       id_notif: id_notif,
+      id_booking: id_booking,
     };
     try {
       const result = await Client.insert(payload, "req_book");
