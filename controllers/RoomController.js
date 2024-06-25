@@ -111,6 +111,8 @@ const RoomController = {
     const client = await Client.initConnection();
 
     const data = req.body.data;
+    // const dateBook = new Date
+
     const payload = {
       book_date: data.book_date,
       time_start: data.time_start,
@@ -118,21 +120,22 @@ const RoomController = {
       prtcpt_ctr: data.participant,
     };
 
+    console.log(payload);
+
     try {
       const getRoom = await client.query(
         `SELECT mst_room.id_ruangan, mst_room.nama, mst_room.kapasitas FROM mst_room
           WHERE mst_room.kapasitas >= ${payload.prtcpt_ctr}
 		      AND mst_room.is_active = 'T'
-          AND NOT EXISTS (
-            SELECT 1
+          AND mst_room.id_ruangan NOT IN (
+            SELECT distinct req_book.id_ruangan
             FROM 
 					  req_book
-            WHERE 
-					  req_book.id_ruangan = mst_room.id_ruangan
-					  AND req_book.book_date = ${payload.book_date}
-					  AND req_book.is_active = 'F'
+            WHERE
+					  req_book.book_date = '${payload.book_date}'
+					  AND req_book.is_active = 'T'
 					  AND (
-              (req_book.time_start < '${payload.time_start}' AND req_book.time_end > '${payload.time_end}')
+              (req_book.time_start <= '${payload.time_end}' AND req_book.time_end >= '${payload.time_start}')
 					  )
           )
           ORDER BY mst_room.kapasitas`
