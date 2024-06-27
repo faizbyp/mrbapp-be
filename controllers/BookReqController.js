@@ -74,19 +74,35 @@ const BookReqController = {
     const client = await Client.initConnection();
     try {
       const data = req.body.data;
-      const id_book = req.body.id_book;
+      console.log(data);
+      const id_book = data.id_book;
+      const payload = {
+        id_ruangan: data.id_ruangan,
+        id_user: data.id_user,
+        // created_at: today,
+        book_date: data.book_date,
+        time_start: data.time_start,
+        time_end: data.time_end,
+        agenda: data.agenda,
+        prtcpt_ctr: data.participant,
+        remark: data.remark,
+        // id_book: id_book,
+        // is_active: "T",
+        // id_notif: id_notif,
+        // id_booking: id_booking,
+      };
       await client.beginTransaction();
+      // const editBookVal = data.map((item) => ({
+      //   [item.key]: item.value,
+      // }));
       // const [dataBook, _] = await client.query('SELECT * FROM req_book WHERE id_book = ?', [id_book]) ;
-      const editBookVal = data.map((item) => ({
-        [item.key]: item.value,
-      }));
       // const startTime = moment(`${dataBook.book_date} ${dataBook.time_start}`) ;
       // const timeNow = moment() ;
       // const minDiff = timeNow.diff(startTime, 'minutes') * -1;
       // if(minDiff < 15 ) {
       //   throw new Error('EXCEED EDIT') ;
       // }
-      const [query, value] = Client.updateQuery(editBookVal, { id_book: id_book }, "req_book");
+      const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
       const updateData = await client.query(query, value);
       res.status(200).send({
         message: `${id_book} is updated`,

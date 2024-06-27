@@ -43,15 +43,13 @@ const UserController = {
         throw new Error("User not found");
       }
       const data = checkUserData[0][0];
-      const checkUserSub = await client.query(
-        "SELECT id FROM notif_sub WHERE endpoint_sub = ?",
-        [subscription.sub.endpoint]
-      );
+      const checkUserSub = await client.query("SELECT id FROM notif_sub WHERE endpoint_sub = ?", [
+        subscription.sub.endpoint,
+      ]);
       if (checkUserSub[0].length !== 0) {
-        const deleteSub = await client.query(
-          "DELETE FROM notif_sub where endpoint_sub = ?",
-          [subscription.sub.endpoint]
-        );
+        const deleteSub = await client.query("DELETE FROM notif_sub where endpoint_sub = ?", [
+          subscription.sub.endpoint,
+        ]);
       }
       let dataNotifSub = [
         data.id_user,
@@ -86,20 +84,14 @@ const UserController = {
         { expiresIn: "5m" }
       );
       if (checkUserData[0].length > 0) {
-        const validate = await validatePassword(
-          password,
-          checkUserData[0][0].password
-        );
+        const validate = await validatePassword(password, checkUserData[0][0].password);
         if (!validate) {
           res.status(400).send({
             message: "Password not valid",
           });
         } else {
           res.status(200).send({
-            message:
-              "Successfully signed in, welcome " +
-              checkUserData[0][0].nama +
-              " !",
+            message: "Successfully signed in, welcome " + checkUserData[0][0].nama + " !",
             data: {
               name: data.username,
               email: data.email,
@@ -167,10 +159,7 @@ const UserController = {
         otp_code: otpHashed,
         valid_until: validUntil,
       };
-      const [qClean, valClean] = Conn.deleteQuery(
-        { email: email },
-        "otp_trans"
-      );
+      const [qClean, valClean] = Conn.deleteQuery({ email: email }, "otp_trans");
       const [queryOTP, valOTP] = Conn.insertQuery(payloadOtp, "otp_trans");
       const cleanExist = await client.query(qClean, valClean);
       const insertToOTP = await client.query(queryOTP, valOTP);
@@ -202,21 +191,12 @@ const UserController = {
     try {
       const validateOTP = await OTPHandler.validateOTP(otpInput, email);
       await client.beginTransaction();
-      const tempUser = await client.query(
-        "SELECT * FROM mst_user_temp where email = ?",
-        [email]
-      );
+      const tempUser = await client.query("SELECT * FROM mst_user_temp where email = ?", [email]);
       const userData = tempUser[0][0];
       delete userData.id;
       const [qInsert, valIns] = Conn.insertQuery(userData, "mst_user");
-      const [qDelete, valDel] = Conn.deleteQuery(
-        { email: email },
-        "mst_user_temp"
-      );
-      const [qDeleteOTP, valDelOTP] = Conn.deleteQuery(
-        { email: email },
-        "otp_trans"
-      );
+      const [qDelete, valDel] = Conn.deleteQuery({ email: email }, "mst_user_temp");
+      const [qDeleteOTP, valDelOTP] = Conn.deleteQuery({ email: email }, "otp_trans");
       let promises = [
         client.query(qInsert, valIns),
         client.query(qDelete, valDel),
@@ -245,10 +225,7 @@ const UserController = {
     const Mailer = new Emailer();
     const client = await Conn.initConnection();
     try {
-      const checkRegis = await client.query(
-        "SELECT * FROM mst_user where email = ?",
-        [email]
-      );
+      const checkRegis = await client.query("SELECT * FROM mst_user where email = ?", [email]);
       if (checkRegis[0].length === 0) {
         throw new Error("User not registred yet");
       }
@@ -259,10 +236,7 @@ const UserController = {
         valid_until: validUntil,
       };
       await client.beginTransaction();
-      const [qClean, valClean] = Conn.deleteQuery(
-        { email: email },
-        "otp_trans"
-      );
+      const [qClean, valClean] = Conn.deleteQuery({ email: email }, "otp_trans");
       const cleanExist = await client.query(qClean, valClean);
       const [queryOTP, valOTP] = Conn.insertQuery(payload, "otp_trans");
       const insertOTP = await client.query(queryOTP, valOTP);
@@ -316,10 +290,7 @@ const UserController = {
       const Conn = new DbConn();
       const client = await Conn.initConnection();
       await client.beginTransaction();
-      const checkUserexist = await client.query(
-        "SELECT * FROM mst_user WHERE email = ? ",
-        [email]
-      );
+      const checkUserexist = await client.query("SELECT * FROM mst_user WHERE email = ? ", [email]);
       if (checkUserexist[0].length == 0) {
         throw new Error("User not found");
       }
@@ -327,11 +298,7 @@ const UserController = {
       const payload = {
         password: hashedNewPass,
       };
-      const [qUpPass, valUpPass] = Conn.updateQuery(
-        payload,
-        { email: email },
-        "mst_user"
-      );
+      const [qUpPass, valUpPass] = Conn.updateQuery(payload, { email: email }, "mst_user");
       const updatePass = await client.query(qUpPass, valUpPass);
       await client.commit();
       res.status(200).send({
