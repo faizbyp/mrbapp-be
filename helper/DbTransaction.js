@@ -78,9 +78,10 @@ class DbConn {
       query =
         startQuery +
         table +
-        `SET ${arrayOfValkey.join(", ")}` +
+        ` SET ${arrayOfValkey.join(", ")}` +
         " WHERE " +
         `${arrayOfWhere.join(" AND ")} ;`;
+      console.log(query);
       const updateQ = await this.client.query(query, arrayVal);
       await this.client.commit();
       return updateQ;
@@ -100,8 +101,7 @@ class DbConn {
       const arrayOfWhere = Object.keys(where).map((item) => {
         return `${item} = ${where[item]}`;
       });
-      query =
-        "DELETE FROM " + table + " WHERE " + arrayOfWhere.join(" AND ") + " ;";
+      query = "DELETE FROM " + table + " WHERE " + arrayOfWhere.join(" AND ") + " ;";
       const deleteItem = this.client.query(query);
       await this.client.commit();
       return deleteItem;
@@ -177,8 +177,7 @@ class DbConn {
       arrayOfVal.push(where[item]);
       return `${item} = ?`;
     });
-    query =
-      "DELETE FROM " + table + " WHERE " + arrayOfWhere.join(" AND ") + " ;";
+    query = "DELETE FROM " + table + " WHERE " + arrayOfWhere.join(" AND ") + " ;";
     return [query, arrayOfVal];
   }
 }

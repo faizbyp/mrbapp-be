@@ -14,6 +14,7 @@ const BookReqCol = [
   "prtcpt_ctr",
   "remark",
   "is_active",
+  "id_book",
 ];
 
 const BookReqController = {
@@ -76,46 +77,34 @@ const BookReqController = {
       const data = req.body.data;
       console.log(data);
       const id_book = data.id_book;
+      const id_user = data.id_user;
       const payload = {
         id_ruangan: data.id_ruangan,
-        id_user: data.id_user,
-        // created_at: today,
         book_date: data.book_date,
         time_start: data.time_start,
         time_end: data.time_end,
         agenda: data.agenda,
         prtcpt_ctr: data.participant,
         remark: data.remark,
-        // id_book: id_book,
-        // is_active: "T",
-        // id_notif: id_notif,
-        // id_booking: id_booking,
       };
       await client.beginTransaction();
-      // const editBookVal = data.map((item) => ({
-      //   [item.key]: item.value,
-      // }));
-      // const [dataBook, _] = await client.query('SELECT * FROM req_book WHERE id_book = ?', [id_book]) ;
-      // const startTime = moment(`${dataBook.book_date} ${dataBook.time_start}`) ;
-      // const timeNow = moment() ;
-      // const minDiff = timeNow.diff(startTime, 'minutes') * -1;
-      // if(minDiff < 15 ) {
-      //   throw new Error('EXCEED EDIT') ;
-      // }
-      const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
-      const updateData = await client.query(query, value);
+      const [query, value] = Client.updateQuery(
+        payload,
+        { id_book: id_book, id_user: id_user },
+        "req_book"
+      );
+      const updateData = await client.query(query, value); // only updated on second request?
       res.status(200).send({
         message: `${id_book} is updated`,
       });
+      console.log(query, value);
+      console.log(updateData);
     } catch (error) {
       res.status(500).send({
         message: error.message,
       });
-      // if(error.message === 'EXCEED EDIT') {
-      //   res.status(400).send({
-      //     message : ``
-      //   })
-      // }
+    } finally {
+      client.release();
     }
   },
 
@@ -241,20 +230,30 @@ const BookReqController = {
     await Client.init();
     try {
       const data = req.body.data;
+      // const colData = {
+      //   id_ruangan: data.id_ruangan,
+      //   book_date: data.book_date,
+      //   time_start: data.time_start,
+      //   time_end: data.time_end,
+      //   agenda: data.agenda,
+      //   prtcpt_ctr: data.participant,
+      //   remark: data.remark,
+      // };
       const whereReq = req.body.where;
       let payload = {};
       let where = {};
       Object.keys(data).map((item) => {
+        // colData
         if (!BookReqCol.includes(item)) {
           throw new Error(`Column ${item} not found`);
         }
-        payload[item] = data[item];
+        payload[item] = data[item]; // colData
       });
       Object.keys(whereReq).map((item) => {
         if (!BookReqCol.includes(item)) {
           throw new Error(`Column ${item} not found`);
         }
-        where[item] = whereReq[item];
+        where[item] = `'${whereReq[item]}'`;
       });
       const updateData = await Client.update(payload, where, "req_book");
       res.status(200).send(updateData);
