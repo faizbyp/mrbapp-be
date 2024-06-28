@@ -34,6 +34,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(routers);
+app.use("/static", express.static("public")); // http://localhost:5000/static/img/office1.jpg
 
 app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`App running on ${process.env.PORT}`);

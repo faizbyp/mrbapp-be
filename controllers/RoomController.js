@@ -61,7 +61,8 @@ const RoomController = {
             id_ruangan, 
             kapasitas, 
             nama, 
-            lokasi 
+            lokasi,
+            image
           FROM 
             mst_room 
           WHERE 
