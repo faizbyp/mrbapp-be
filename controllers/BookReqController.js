@@ -20,9 +20,9 @@ const BookReqCol = [
 const BookReqController = {
   createBook: async (req, res) => {
     const Client = new DbConn();
-    await Client.init();
+    const client = await Client.initConnection();
     const data = req.body.data;
-    const ai = await Client.select("SELECT id from req_book order by id desc limit 1;");
+    const ai = await client.query("SELECT id from req_book order by id desc limit 1;");
     const ai_book = ai[0][0].id % 999;
     console.log(ai_book);
     const today = new Date();
@@ -60,13 +60,19 @@ const BookReqController = {
       id_booking: id_booking,
     };
     try {
-      const result = await Client.insert(payload, "req_book");
+      await client.beginTransaction();
+      const [query, value] = await Client.insertQuery(payload, "req_book");
+      await client.query(query, value);
       res.status(200).send({
         message: "Room Booked",
       });
+      client.commit();
     } catch (error) {
       console.log(error);
       res.status(500).send({ message: error.message });
+      client.rollback();
+    } finally {
+      client.release();
     }
   },
 
