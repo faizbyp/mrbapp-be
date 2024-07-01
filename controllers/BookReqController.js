@@ -80,13 +80,12 @@ const BookReqController = {
     const Client = new DbConn();
     const client = await Client.initConnection();
     try {
-      const value = req.body.data.id_book;
-      // const id_user = req.body.data.id_user;
+      const value = req.params.id_book;
       const query = "SELECT * FROM req_book WHERE id_book = ?";
       await client.beginTransaction();
       const data = await client.query(query, value);
       await client.commit();
-      res.status(200).send(data[0]);
+      res.status(200).send(data[0][0]);
       console.log(data);
     } catch (error) {
       await client.rollback();

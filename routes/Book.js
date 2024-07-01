@@ -7,7 +7,7 @@ router.post("/", BookCheck, BookReqController.createBook);
 router.get("/", BookReqController.showAllBook);
 router.get("/show", BookReqController.showBookbyUser);
 router.get("/byroom", BookReqController.showBookbyRoom);
-router.get("/byid", BookReqController.getBookById);
+router.get("/:id_book", BookReqController.getBookById);
 router.patch("/", BookReqController.updateBook);
 router.post("/cancel", BookReqController.cancelBook);
 router.post("/edit", BookReqController.editBook);
