@@ -94,12 +94,14 @@ const BookReqController = {
         "req_book"
       );
       const updateData = await client.query(query, value); // only updated on second request?
+      await client.commit();
       res.status(200).send({
         message: `${id_book} is updated`,
       });
       console.log(query, value);
       console.log(updateData);
     } catch (error) {
+      await client.rollback();
       res.status(500).send({
         message: error.message,
       });
