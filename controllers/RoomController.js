@@ -124,28 +124,32 @@ const RoomController = {
     console.log(payload);
 
     try {
+      await client.beginTransaction();
       const getRoom = await client.query(
         `SELECT mst_room.id_ruangan, mst_room.nama, mst_room.kapasitas FROM mst_room
-          WHERE mst_room.kapasitas >= ${payload.prtcpt_ctr}
+          WHERE mst_room.kapasitas >= ?
 		      AND mst_room.is_active = 'T'
           AND mst_room.id_ruangan NOT IN (
             SELECT distinct req_book.id_ruangan
             FROM 
 					  req_book
             WHERE
-					  req_book.book_date = '${payload.book_date}'
+					  req_book.book_date = ?
 					  AND req_book.is_active = 'T'
 					  AND (
-              (req_book.time_start <= '${payload.time_end}' AND req_book.time_end >= '${payload.time_start}')
+              (req_book.time_start <= ? AND req_book.time_end >= ?)
 					  )
           )
-          ORDER BY mst_room.kapasitas`
+          ORDER BY mst_room.kapasitas`,
+        [payload.prtcpt_ctr, payload.book_date, payload.time_end, payload.time_start]
       );
+      await client.commit();
       res.status(200).send({
         message: "Success get avail room",
         data: getRoom[0],
       });
     } catch (error) {
+      await client.rollback();
       console.log(error);
       res.status(500).send({ message: error.message });
     } finally {
