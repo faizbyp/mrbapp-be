@@ -103,8 +103,8 @@ const BookReqController = {
     try {
       const data = req.body.data;
       console.log(data);
-      const id_book = data.id_book;
-      const id_user = data.id_user;
+      const id_book = req.params.id_book;
+      // const id_user = data.id_user;
       const payload = {
         id_ruangan: data.id_ruangan,
         book_date: data.book_date,
@@ -115,12 +115,8 @@ const BookReqController = {
         remark: data.remark,
       };
       await client.beginTransaction();
-      const [query, value] = Client.updateQuery(
-        payload,
-        { id_book: id_book, id_user: id_user },
-        "req_book"
-      );
-      const updateData = await client.query(query, value); // only updated on second request?
+      const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
+      const updateData = await client.query(query, value);
       await client.commit();
       res.status(200).send({
         message: `${id_book} is updated`,

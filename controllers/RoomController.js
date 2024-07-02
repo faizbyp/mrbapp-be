@@ -119,6 +119,7 @@ const RoomController = {
       time_start: data.time_start,
       time_end: data.time_end,
       prtcpt_ctr: data.participant,
+      id_book: data.id_book ? data.id_book : "",
     };
 
     console.log(payload);
@@ -135,13 +136,19 @@ const RoomController = {
 					  req_book
             WHERE
 					  req_book.book_date = ?
-					  AND req_book.is_active = 'T'
+					  AND IF (? = "", req_book.is_active = 'T', false)
 					  AND (
               (req_book.time_start <= ? AND req_book.time_end >= ?)
 					  )
           )
           ORDER BY mst_room.kapasitas`,
-        [payload.prtcpt_ctr, payload.book_date, payload.time_end, payload.time_start]
+        [
+          payload.prtcpt_ctr,
+          payload.book_date,
+          payload.id_book,
+          payload.time_end,
+          payload.time_start,
+        ]
       );
       await client.commit();
       res.status(200).send({

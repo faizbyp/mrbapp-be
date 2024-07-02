@@ -10,7 +10,7 @@ router.get("/byroom", BookReqController.showBookbyRoom);
 router.get("/:id_book", BookReqController.getBookById);
 router.patch("/", BookReqController.updateBook);
 router.post("/cancel", BookReqController.cancelBook);
-router.post("/edit", BookReqController.editBook);
+router.post("/:id_book", BookReqController.editBook);
 // http://localhost:5000/api/book/byroom?roomid=ROOM003
 
 module.exports = router;
