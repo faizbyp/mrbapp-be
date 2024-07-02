@@ -137,7 +137,7 @@ const BookReqController = {
     const Client = new DbConn();
     const client = await Client.initConnection();
     try {
-      const id_book = req.body.id_book;
+      const id_book = req.params.id_book;
       await client.beginTransaction();
 
       const [query, value] = Client.updateQuery(
@@ -146,10 +146,12 @@ const BookReqController = {
         "req_book"
       );
       const updateData = await client.query(query, value);
+      await client.commit();
       res.status(200).send({
-        message: `${id_book} is cancled`,
+        message: `${id_book} is canceled`,
       });
     } catch (error) {
+      await client.rollback();
       res.status(500).send({
         message: error.message,
       });
@@ -188,9 +190,9 @@ const BookReqController = {
         time_end,
         book_date,
         CASE 
-          WHEN NOW() > upcoming_time AND NOW() < start_time THEN 'Oncoming'
-          WHEN NOW() > start_time AND NOW() < end_time THEN 'Ongoing'
-          WHEN NOW() < start_time THEN 'Prospective'
+          WHEN NOW() > upcoming_time AND NOW() < start_time AND BK.is_active = 'T' THEN 'Oncoming'
+          WHEN NOW() > start_time AND NOW() < end_time AND BK.is_active = 'T' THEN 'Ongoing'
+          WHEN NOW() < start_time AND BK.is_active = 'T' THEN 'Prospective'
           WHEN NOW() > end_time OR BK.is_active = 'F' THEN 'Inactive' 
           ELSE ''
         END AS status
