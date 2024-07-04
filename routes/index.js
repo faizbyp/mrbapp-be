@@ -21,6 +21,12 @@ router.get("/api/testcron", Example.cronTest);
 //   });
 // });
 
+router.get("/generate-uuid", (req, res) => {
+  res.status(200).send({
+    message: uuid.uuid(),
+  });
+});
+
 router.get("/api/example", Example.exampleMethod);
 
 module.exports = router;
