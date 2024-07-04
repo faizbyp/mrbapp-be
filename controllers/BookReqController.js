@@ -65,6 +65,7 @@ const BookReqController = {
       await client.query(query, value);
       res.status(200).send({
         message: "Room Booked",
+        id_book: id_book,
       });
       client.commit();
     } catch (error) {
@@ -119,7 +120,8 @@ const BookReqController = {
       const updateData = await client.query(query, value);
       await client.commit();
       res.status(200).send({
-        message: `${id_book} is updated`,
+        message: "Book updated",
+        id_book: id_book,
       });
       console.log(query, value);
       console.log(updateData);
