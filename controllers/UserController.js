@@ -26,6 +26,7 @@ const UserController = {
       accessToken: newAccessToken,
     });
   },
+
   loginUser: async (req, res) => {
     const Client = new DbConn();
     const client = await Client.initConnection();
@@ -36,7 +37,7 @@ const UserController = {
       const subscription = JSON.parse(req.body.subscription);
       const now = new Date();
       const checkUserData = await client.query(
-        "SELECT email, username, password, nama, id_user FROM MST_USER where username = ? or email = ?",
+        "SELECT email, username, password, nama, id_user, role_id FROM MST_USER where username = ? or email = ?",
         [emailoruname, emailoruname]
       );
       if (checkUserData[0].length === 0) {
@@ -84,18 +85,19 @@ const UserController = {
         { expiresIn: "5m" }
       );
       if (checkUserData[0].length > 0) {
-        const validate = await validatePassword(password, checkUserData[0][0].password);
+        const validate = await validatePassword(password, data.password);
         if (!validate) {
           res.status(400).send({
             message: "Password not valid",
           });
         } else {
           res.status(200).send({
-            message: "Successfully signed in, welcome " + checkUserData[0][0].nama + " !",
+            message: `Success sign in, welcome ${data.nama}`,
             data: {
               name: data.username,
               email: data.email,
               id_user: data.id_user,
+              role_id: data.role_id,
               accessToken: accessToken,
               refreshToken: refreshToken,
             },
