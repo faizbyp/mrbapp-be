@@ -172,6 +172,8 @@ const BookReqController = {
       await client.rollback();
       console.error(error);
       res.status(500).send(error);
+    } finally {
+      client.release();
     }
   },
 
