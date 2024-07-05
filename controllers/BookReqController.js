@@ -162,11 +162,14 @@ const BookReqController = {
 
   showAllBook: async (req, res) => {
     const Client = new DbConn();
-    await Client.init();
+    const client = await Client.initConnection();
     try {
-      const showall = await Client.select("SELECT * FROM req_book");
+      await client.beginTransaction();
+      const showall = await client.query("SELECT * FROM req_book");
+      await client.commit();
       res.status(200).send({ data: showall[0] });
     } catch (error) {
+      await client.rollback();
       console.error(error);
       res.status(500).send(error);
     }
