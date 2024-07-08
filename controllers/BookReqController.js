@@ -58,6 +58,7 @@ const BookReqController = {
       is_active: "T",
       id_notif: id_notif,
       id_booking: id_booking,
+      approval: "pending",
     };
     try {
       await client.beginTransaction();
@@ -81,9 +82,9 @@ const BookReqController = {
     const Client = new DbConn();
     const client = await Client.initConnection();
     try {
+      await client.beginTransaction();
       const value = req.params.id_book;
       const query = "SELECT * FROM req_book WHERE id_book = ?";
-      await client.beginTransaction();
       const data = await client.query(query, value);
       await client.commit();
       res.status(200).send(data[0][0]);
@@ -105,7 +106,9 @@ const BookReqController = {
       const data = req.body.data;
       console.log(data);
       const id_book = req.params.id_book;
-      // const id_user = data.id_user;
+      if (!id_book) {
+        throw Error("Request Error");
+      }
       const payload = {
         id_ruangan: data.id_ruangan,
         book_date: data.book_date,
@@ -193,13 +196,14 @@ const BookReqController = {
         MR.id_ruangan as id_room,
         agenda,
         BK.is_active,
+        BK.approval,
         time_start,
         time_end,
         book_date,
         CASE 
-          WHEN NOW() > upcoming_time AND NOW() < start_time AND BK.is_active = 'T' THEN 'Oncoming'
-          WHEN NOW() > start_time AND NOW() < end_time AND BK.is_active = 'T' THEN 'Ongoing'
-          WHEN NOW() < start_time AND BK.is_active = 'T' THEN 'Prospective'
+          WHEN NOW() > upcoming_time AND NOW() < start_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Oncoming'
+          WHEN NOW() > start_time AND NOW() < end_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Ongoing'
+          WHEN NOW() < start_time AND BK.is_active = 'T' THEN 'Pending'
           WHEN NOW() > end_time OR BK.is_active = 'F' THEN 'Inactive' 
           ELSE ''
         END AS status
@@ -211,6 +215,7 @@ const BookReqController = {
           agenda,
           id_user,
           is_active,
+          approval,
           DATE_FORMAT(time_start, '%H:%i') as time_start,
           DATE_FORMAT(book_date, '%Y-%m-%d') as book_date,
           DATE_FORMAT(time_end, '%H:%i') as time_end,
