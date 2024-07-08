@@ -59,6 +59,8 @@ const BookReqController = {
       id_notif: id_notif,
       id_booking: id_booking,
       approval: "pending",
+      check_in: "F",
+      check_out: "F",
     };
     try {
       await client.beginTransaction();
