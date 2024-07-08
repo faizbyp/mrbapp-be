@@ -130,6 +130,7 @@ const UserController = {
       password: password,
       email: req.body.email,
       id_user: uuid.uuid(),
+      role_id: "321de04f-1e49-4ed0-b301-3ed6ea54ce9c",
     };
     const Conn = new DbConn();
     await Conn.init();
