@@ -265,6 +265,41 @@ const BookReqController = {
       res.status(500).send(error);
     }
   },
+
+  approval: async (req, res) => {
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+    try {
+      const data = req.body.data;
+      const id_book = req.params.id_book;
+      if (!id_book) {
+        throw Error("Request Error");
+      }
+      const payload = {
+        approval: data.approval,
+        reject_note: data.reject_note,
+      };
+      console.log(payload);
+      await client.beginTransaction();
+      const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
+      const updateData = await client.query(query, value);
+      await client.commit();
+      res.status(200).send({
+        message: `Book ${data.approval}`,
+        id_book: id_book,
+        reject_note: data.reject_note,
+      });
+      console.log(query, value);
+      console.log(updateData);
+    } catch (error) {
+      await client.rollback();
+      res.status(500).send({
+        message: error.message,
+      });
+    } finally {
+      client.release();
+    }
+  },
 };
 
 module.exports = BookReqController;

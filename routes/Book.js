@@ -12,4 +12,6 @@ router.patch("/:id_book", BookReqController.editBook);
 router.delete("/:id_book", BookReqController.cancelBook);
 // http://localhost:5000/api/book/byroom?roomid=ROOM003
 
+router.patch("/approval/:id_book", BookReqController.approval);
+
 module.exports = router;
