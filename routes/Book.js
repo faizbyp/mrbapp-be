@@ -8,8 +8,7 @@ router.get("/", BookReqController.showAllBook);
 router.get("/show", BookReqController.showBookbyUser);
 router.get("/byroom", BookReqController.showBookbyRoom);
 router.get("/:id_book", BookReqController.getBookById);
-router.patch("/", BookReqController.updateBook);
-router.put("/:id_book", BookReqController.editBook);
+router.patch("/:id_book", BookReqController.editBook);
 router.delete("/:id_book", BookReqController.cancelBook);
 // http://localhost:5000/api/book/byroom?roomid=ROOM003
 

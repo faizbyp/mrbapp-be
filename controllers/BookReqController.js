@@ -263,44 +263,6 @@ const BookReqController = {
       res.status(500).send(error);
     }
   },
-
-  updateBook: async (req, res) => {
-    const Client = new DbConn();
-    await Client.init();
-    try {
-      const data = req.body.data;
-      // const colData = {
-      //   id_ruangan: data.id_ruangan,
-      //   book_date: data.book_date,
-      //   time_start: data.time_start,
-      //   time_end: data.time_end,
-      //   agenda: data.agenda,
-      //   prtcpt_ctr: data.participant,
-      //   remark: data.remark,
-      // };
-      const whereReq = req.body.where;
-      let payload = {};
-      let where = {};
-      Object.keys(data).map((item) => {
-        // colData
-        if (!BookReqCol.includes(item)) {
-          throw new Error(`Column ${item} not found`);
-        }
-        payload[item] = data[item]; // colData
-      });
-      Object.keys(whereReq).map((item) => {
-        if (!BookReqCol.includes(item)) {
-          throw new Error(`Column ${item} not found`);
-        }
-        where[item] = `'${whereReq[item]}'`;
-      });
-      const updateData = await Client.update(payload, where, "req_book");
-      res.status(200).send(updateData);
-    } catch (error) {
-      console.error(error);
-      res.status(500).send(error);
-    }
-  },
 };
 
 module.exports = BookReqController;
