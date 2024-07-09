@@ -1,4 +1,5 @@
 const DbConn = require("../helper/DbTransaction");
+const Emailer = require("../helper/Emailer");
 const Notif = require("../helper/NotificationManager");
 const moment = require("moment");
 const uuid = require("uuidv4");
@@ -286,6 +287,7 @@ const BookReqController = {
       await client.beginTransaction();
       const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
       const updateData = await client.query(query, value);
+      await client.commit();
       if (data.approval === "approved") {
         await Notif.CreateNewCron(
           bookDate,
@@ -296,7 +298,8 @@ const BookReqController = {
           id_notif
         );
       }
-      await client.commit();
+      const Email = new Emailer();
+      await Email.approvalNotif(data, "nematodez@nespressopixie.com");
       res.status(200).send({
         message: `Book ${data.approval}`,
         id_book: id_book,

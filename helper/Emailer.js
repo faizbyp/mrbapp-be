@@ -48,6 +48,23 @@ class Mailer {
       throw error;
     }
   }
+
+  async approvalNotif(data, emailTarget) {
+    console.log("EMAIL RUNNING");
+    const setup = {
+      from: process.env.SMTP_USERNAME,
+      to: emailTarget,
+      subject: `Roomeet - Your meeting is ${data.approval}`,
+      text: `Testing notif to email`,
+    };
+    try {
+      await this.tp.sendMail(setup);
+      return emailTarget;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 }
 
 module.exports = Mailer;
