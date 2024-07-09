@@ -49,14 +49,44 @@ class Mailer {
     }
   }
 
-  async approvalNotif(data, emailTarget) {
+  async approvalNotif(data, username, emailTarget) {
     console.log("EMAIL RUNNING");
-    const setup = {
-      from: process.env.SMTP_USERNAME,
-      to: emailTarget,
-      subject: `Roomeet - Your meeting is ${data.approval}`,
-      text: `Testing notif to email`,
-    };
+    let setup;
+
+    if (data.approval === "approved") {
+      setup = {
+        from: process.env.SMTP_USERNAME,
+        to: emailTarget,
+        subject: `Roomeet - Your meeting is ${data.approval}`,
+        html: `<main style="font-family: sans-serif">
+        <h1>Roomeet</h1>
+        <p>Hello, ${username}</p>
+        <p>Your booking, <strong>"${data.agenda}"</strong> is <strong>${data.approval}</strong>.</p>
+        <p>Don't forget to check in 15 minutes before the meeting start.</p>
+        <hr />
+        <p>Thank you.</p>
+        </main>
+        `,
+      };
+    } else if (data.approval === "rejected") {
+      setup = {
+        from: process.env.SMTP_USERNAME,
+        to: emailTarget,
+        subject: `Roomeet - Your meeting is ${data.approval}`,
+        html: `<main style="font-family: sans-serif">
+        <h1>Roomeet</h1>
+        <p>Hello, ${username}</p>
+        <p>Your booking, <strong>"${data.agenda}"</strong> is <strong>${data.approval}</strong>.</p>
+        <p>Here's some note from administrator:</p>
+        <p>${data.reject_note}</p>
+        <br />
+        <p>Please create a new booking based on the note above</p>
+        <hr />
+        <p>Thank you.</p>
+        </main>
+        `,
+      };
+    }
     try {
       await this.tp.sendMail(setup);
       return emailTarget;

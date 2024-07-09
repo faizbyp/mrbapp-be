@@ -287,7 +287,14 @@ const BookReqController = {
       await client.beginTransaction();
       const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
       const updateData = await client.query(query, value);
+      const selectUser = await client.query(
+        "SELECT username, email FROM mst_user WHERE id_user = ? ;",
+        [data.id_user]
+      );
+      const username = selectUser[0][0].username;
+      const email = selectUser[0][0].email;
       await client.commit();
+
       if (data.approval === "approved") {
         await Notif.CreateNewCron(
           bookDate,
@@ -299,7 +306,7 @@ const BookReqController = {
         );
       }
       const Email = new Emailer();
-      await Email.approvalNotif(data, "nematodez@nespressopixie.com");
+      await Email.approvalNotif(data, username, email);
       res.status(200).send({
         message: `Book ${data.approval}`,
         id_book: id_book,
