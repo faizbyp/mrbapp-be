@@ -22,6 +22,7 @@ const BookReqController = {
     const Client = new DbConn();
     const client = await Client.initConnection();
     const data = req.body.data;
+    // AI AUTO INCREMENT
     const ai = await client.query("SELECT id from req_book order by id desc limit 1;");
     const ai_book = ai[0][0].id % 999;
     console.log(ai_book);
@@ -36,14 +37,14 @@ const BookReqController = {
     const id_book = uuid.uuid();
     const id_notif = uuid.uuid();
     const bookDate = moment(new Date(`${data.book_date} ${data.time_start}`)).subtract(15, "m");
-    await Notif.CreateNewCron(
-      bookDate,
-      "Meeting Check In Reminder",
-      "Please check in for agenda :" + data.agenda,
-      data.id_user,
-      id_book,
-      id_notif
-    );
+    // await Notif.CreateNewCron(
+    //   bookDate,
+    //   "Meeting Check In Reminder",
+    //   "Please check in for agenda: " + data.agenda,
+    //   data.id_user,
+    //   id_book,
+    //   id_notif
+    // );
     const payload = {
       id_ruangan: data.id_ruangan,
       id_user: data.id_user,
@@ -272,6 +273,8 @@ const BookReqController = {
     try {
       const data = req.body.data;
       const id_book = req.params.id_book;
+      const id_notif = uuid.uuid();
+      const bookDate = moment(new Date(`${data.book_date} ${data.time_start}`)).subtract(15, "m");
       if (!id_book) {
         throw Error("Request Error");
       }
@@ -283,6 +286,16 @@ const BookReqController = {
       await client.beginTransaction();
       const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
       const updateData = await client.query(query, value);
+      if (data.approval === "approved") {
+        await Notif.CreateNewCron(
+          bookDate,
+          "Meeting Check In Reminder",
+          "Please check in for agenda: " + data.agenda,
+          data.id_user,
+          id_book,
+          id_notif
+        );
+      }
       await client.commit();
       res.status(200).send({
         message: `Book ${data.approval}`,
