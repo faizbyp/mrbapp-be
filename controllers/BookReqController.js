@@ -157,6 +157,8 @@ const BookReqController = {
       res.status(500).send({
         message: error.message,
       });
+    } finally {
+      client.release();
     }
   },
 
@@ -181,13 +183,14 @@ const BookReqController = {
 
   showBookbyUser: async (req, res) => {
     const Client = new DbConn();
-    await Client.init();
+    const client = await Client.initConnection();
     try {
       const userid = req.query.id_user;
       if (userid === undefined) {
         throw Error("Request Error");
       }
-      const showData = await Client.select(
+      await client.beginTransaction();
+      const showData = await client.query(
         `SELECT
         id_book,
         id_user,
@@ -228,18 +231,21 @@ const BookReqController = {
         req_book 
         ) BK 
         LEFT JOIN mst_room MR ON BK.id_ruangan = MR.id_ruangan 
-        WHERE id_user = ?`,
+        WHERE id_user = ? ORDER BY book_date DESC`,
         [userid]
       );
       const data = showData[0];
       res.status(200).send({ data: data });
     } catch (error) {
+      await client.rollback();
       console.error(error);
       if (error.message === "Request Error") {
         res.status(400).send({ message: error.message });
       } else {
         res.status(500).send({ message: error.message });
       }
+    } finally {
+      client.release();
     }
   },
 
