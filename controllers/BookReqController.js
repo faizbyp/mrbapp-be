@@ -38,14 +38,6 @@ const BookReqController = {
     const id_book = uuid.uuid();
     const id_notif = uuid.uuid();
     const bookDate = moment(new Date(`${data.book_date} ${data.time_start}`)).subtract(15, "m");
-    // await Notif.CreateNewCron(
-    //   bookDate,
-    //   "Meeting Check In Reminder",
-    //   "Please check in for agenda: " + data.agenda,
-    //   data.id_user,
-    //   id_book,
-    //   id_notif
-    // );
     const payload = {
       id_ruangan: data.id_ruangan,
       id_user: data.id_user,

@@ -1,4 +1,7 @@
 const mailer = require("nodemailer");
+const fs = require("fs");
+const path = require("path");
+const EmailGen = require("./EmailGen");
 
 class Mailer {
   constructor() {
@@ -54,90 +57,20 @@ class Mailer {
     let setup;
 
     if (data.approval === "approved") {
+      const approved = EmailGen.NotifyApproved(data);
       setup = {
         from: process.env.SMTP_USERNAME,
         to: data.email,
         subject: `Roomeet - Your meeting is ${data.approval}`,
-        html: `<main style="font-family: sans-serif">
-        <img src="https://safetyfirstindonesia.co.id/assets/uploads/images/9f09b-kpn-corp.png" width="40%" alt="KPN Corp" />
-        <h1>Roomeet</h1>
-        <p>Hello, ${data.username}</p>
-        <p>Your booking, <strong>"${data.agenda}"</strong> is <strong style="color: green;">${data.approval}</strong>.</p>
-        <table>
-          <tr>
-            <td>Agenda</td>
-            <td>${data.agenda}</td>
-          </tr>
-          <tr>
-            <td>Remark</td>
-            <td>${data.remark}</td>
-          </tr>
-          <tr>
-            <td>Room</td>
-            <td>${data.ruangan}</td>
-          </tr>
-          <tr>
-            <td>Booking Date</td>
-            <td>${data.book_date}</td>
-          </tr>
-          <tr>
-            <td>Time</td>
-            <td>${data.time_start} - ${data.time_end}</td>
-          </tr>
-          <tr>
-            <td>Participants</td>
-            <td>${data.capacity}</td>
-          </tr>
-        </table>
-        <p>Don't forget to check in 15 minutes before the meeting start.</p>
-        <hr />
-        <p>Thank you.</p>
-        </main>
-        `,
+        html: approved,
       };
     } else if (data.approval === "rejected") {
+      const rejected = EmailGen.NotifyRejected(data);
       setup = {
         from: process.env.SMTP_USERNAME,
         to: data.email,
         subject: `Roomeet - Your meeting is ${data.approval}`,
-        html: `<main style="font-family: sans-serif">
-        <img src="https://safetyfirstindonesia.co.id/assets/uploads/images/9f09b-kpn-corp.png" width="40%" alt="KPN Corp" />
-        <h1>Roomeet</h1>
-        <p>Hello, ${data.username}</p>
-        <p>Your booking, <strong>"${data.agenda}"</strong> is <strong style="color: red;">${data.approval}</strong>.</p>
-        <table>
-          <tr>
-            <td>Agenda</td>
-            <td>${data.agenda}</td>
-          </tr>
-          <tr>
-            <td>Remark</td>
-            <td>${data.remark}</td>
-          </tr>
-          <tr>
-            <td>Room</td>
-            <td>${data.ruangan}</td>
-          </tr>
-          <tr>
-            <td>Booking Date</td>
-            <td>${data.book_date}</td>
-          </tr>
-          <tr>
-            <td>Time</td>
-            <td>${data.time_start} - ${data.time_end}</td>
-          </tr>
-          <tr>
-            <td>Participants</td>
-            <td>${data.capacity}</td>
-          </tr>
-        </table>
-        <p>Here's some note from administrator:</p>
-        <blockquote style="background: lightGray;">${data.reject_note}</blockquote>
-        <p>Please create a new booking based on the note above</p>
-        <hr />
-        <p>Thank you.</p>
-        </main>
-        `,
+        html: rejected,
       };
     }
     try {
