@@ -203,7 +203,7 @@ const BookReqController = {
           WHEN NOW() > upcoming_time AND NOW() < start_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Oncoming'
           WHEN NOW() > start_time AND NOW() < end_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Ongoing'
           WHEN NOW() < start_time AND BK.is_active = 'T' THEN 'Pending'
-          WHEN NOW() > end_time OR BK.is_active = 'F' THEN 'Inactive' 
+          WHEN NOW() > end_time OR BK.is_active = 'F' OR BK.approval = 'rejected' THEN 'Inactive' 
           ELSE ''
         END AS status
       FROM
