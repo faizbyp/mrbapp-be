@@ -88,7 +88,8 @@ const BookReqController = {
     try {
       await client.beginTransaction();
       const value = req.params.id_book;
-      const query = "SELECT * FROM req_book WHERE id_book = ?";
+      const query =
+        "SELECT req_book.*, mst_user.username, mst_user.email FROM req_book LEFT JOIN mst_user ON req_book.id_user = mst_user.id_user AND id_book = ?";
       const data = await client.query(query, value);
       await client.commit();
       res.status(200).send(data[0][0]);
@@ -172,7 +173,9 @@ const BookReqController = {
     const client = await Client.initConnection();
     try {
       await client.beginTransaction();
-      const showall = await client.query("SELECT * FROM req_book");
+      const showall = await client.query(
+        "SELECT req_book.*, mst_user.username FROM req_book LEFT JOIN mst_user ON req_book.id_user = mst_user.id_user"
+      );
       await client.commit();
       res.status(200).send({ data: showall[0] });
     } catch (error) {
