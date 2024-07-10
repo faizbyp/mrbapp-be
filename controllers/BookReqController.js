@@ -166,7 +166,7 @@ const BookReqController = {
     try {
       await client.beginTransaction();
       const showall = await client.query(
-        "SELECT req_book.*, mst_user.username FROM req_book LEFT JOIN mst_user ON req_book.id_user = mst_user.id_user"
+        "SELECT req_book.*, mst_user.username FROM req_book LEFT JOIN mst_user ON req_book.id_user = mst_user.id_user ORDER BY req_book.id DESC"
       );
       await client.commit();
       res.status(200).send({ data: showall[0] });
