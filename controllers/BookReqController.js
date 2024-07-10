@@ -318,6 +318,86 @@ const BookReqController = {
       client.release();
     }
   },
+
+  checkIn: async (req, res) => {
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+    try {
+      const data = req.body.data;
+      const payload = {
+        check_in: "T",
+      };
+      console.log(payload);
+      await client.beginTransaction();
+      const [query, value] = Client.updateQuery(
+        payload,
+        { id_user: data.id_user, id_book: data.id_book },
+        "req_book"
+      );
+      const updateData = await client.query(query, value);
+      await client.commit();
+      console.log(query, value);
+      console.log(updateData[0].changedRows);
+      if (updateData[0].changedRows === 1) {
+        res.status(200).send({
+          message: "Check in success",
+          id_user: data.id_user,
+          id_book: data.id_book,
+        });
+      } else {
+        res.status(400).send({
+          message: "Bad Request: Payload error",
+        });
+      }
+    } catch (error) {
+      await client.rollback();
+      res.status(500).send({
+        message: error.message,
+      });
+    } finally {
+      client.release();
+    }
+  },
+
+  checkOut: async (req, res) => {
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+    try {
+      const data = req.body.data;
+      const payload = {
+        check_out: "T",
+      };
+      console.log(payload);
+      await client.beginTransaction();
+      const [query, value] = Client.updateQuery(
+        payload,
+        { id_user: data.id_user, id_book: data.id_book },
+        "req_book"
+      );
+      const updateData = await client.query(query, value);
+      await client.commit();
+      console.log(query, value);
+      console.log(updateData[0].changedRows);
+      if (updateData[0].changedRows === 1) {
+        res.status(200).send({
+          message: "Check out success",
+          id_user: data.id_user,
+          id_book: data.id_book,
+        });
+      } else {
+        res.status(400).send({
+          message: "Bad Request: Payload error",
+        });
+      }
+    } catch (error) {
+      await client.rollback();
+      res.status(500).send({
+        message: error.message,
+      });
+    } finally {
+      client.release();
+    }
+  },
 };
 
 module.exports = BookReqController;
