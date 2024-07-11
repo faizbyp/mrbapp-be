@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/checkin/:id_user", BookReqController.getCheckInBook);
+router.get("/checkout/:id_user", BookReqController.getCheckOutBook);
 router.patch("/checkin", BookReqController.checkIn);
 router.patch("/checkout", BookReqController.checkOut);
 
