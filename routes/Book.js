@@ -3,6 +3,7 @@ const BookCheck = require("../middleware/bookcheck");
 const express = require("express");
 const router = express.Router();
 
+router.get("/checkin/:id_user", BookReqController.getCheckInBook);
 router.patch("/checkin", BookReqController.checkIn);
 router.patch("/checkout", BookReqController.checkOut);
 

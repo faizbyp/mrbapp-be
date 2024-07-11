@@ -398,6 +398,40 @@ const BookReqController = {
       client.release();
     }
   },
+
+  getCheckInBook: async (req, res) => {
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+    const id_user = req.params.id_user;
+    try {
+      await client.beginTransaction();
+      const getBook = await client.query(
+        `
+        SELECT * FROM req_book WHERE (
+          id_user = ?
+          AND
+          is_active = 'T'
+          AND 
+          approval = 'approved'
+          AND
+          book_date = DATE_FORMAT(NOW(), '%Y-%m-%d')
+          AND
+          curtime() BETWEEN SUBTIME(time_start, '1500') AND time_end
+        ) 
+        `,
+        [id_user]
+      );
+      await client.commit();
+      res.status(200).send({ data: getBook[0] });
+    } catch (error) {
+      await client.rollback();
+      res.status(500).send({
+        message: error.message,
+      });
+    } finally {
+      client.release();
+    }
+  },
 };
 
 module.exports = BookReqController;
