@@ -412,6 +412,8 @@ const BookReqController = {
           AND
           is_active = 'T'
           AND 
+          check_in = 'F'
+          AND
           approval = 'approved'
           AND
           book_date = DATE_FORMAT(NOW(), '%Y-%m-%d')
