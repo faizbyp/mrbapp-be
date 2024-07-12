@@ -167,8 +167,10 @@ const BookReqController = {
     const client = await Client.initConnection();
     try {
       await client.beginTransaction();
+      const book_date = req.query.book_date || null;
       const showall = await client.query(
-        "SELECT req_book.*, mst_user.username FROM req_book LEFT JOIN mst_user ON req_book.id_user = mst_user.id_user ORDER BY req_book.id DESC"
+        "SELECT req_book.*, mst_user.username FROM req_book LEFT JOIN mst_user ON req_book.id_user = mst_user.id_user WHERE (req_book.book_date = ? OR ? IS NULL) ORDER BY req_book.id DESC",
+        [book_date, book_date]
       );
       await client.commit();
       res.status(200).send({ data: showall[0] });
@@ -186,6 +188,7 @@ const BookReqController = {
     const client = await Client.initConnection();
     try {
       const userid = req.query.id_user;
+      const book_date = req.query.book_date || null;
       if (userid === undefined) {
         throw Error("Request Error");
       }
@@ -231,8 +234,9 @@ const BookReqController = {
         req_book 
         ) BK 
         LEFT JOIN mst_room MR ON BK.id_ruangan = MR.id_ruangan 
-        WHERE id_user = ? ORDER BY book_date DESC`,
-        [userid]
+        WHERE id_user = ? AND (book_date = ? OR ? IS NULL)
+        ORDER BY book_date DESC`,
+        [userid, book_date, book_date]
       );
       const data = showData[0];
       res.status(200).send({ data: data });
