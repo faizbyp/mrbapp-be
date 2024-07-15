@@ -4,6 +4,14 @@ const Notif = require("../helper/NotificationManager");
 const moment = require("moment");
 const uuid = require("uuidv4");
 
+// CASE
+//           WHEN NOW() > upcoming_time AND NOW() < start_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Oncoming'
+//           WHEN NOW() > start_time AND NOW() < end_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Ongoing'
+//           WHEN NOW() < start_time AND BK.is_active = 'T' THEN 'Pending'
+//           WHEN NOW() > end_time OR BK.is_active = 'F' OR BK.approval = 'rejected' THEN 'Inactive'
+//           ELSE ''
+//         END AS status
+
 const BookReqCol = [
   "id_ruangan",
   "id_user",
@@ -192,6 +200,7 @@ const BookReqController = {
     try {
       const userid = req.query.id_user;
       const book_date = req.query.book_date || null;
+      const limit = req.query.limit ? Number(req.query.limit) : 10;
       if (userid === undefined) {
         throw Error("Request Error");
       }
@@ -208,14 +217,7 @@ const BookReqController = {
         time_start,
         time_end,
         book_date,
-        approval,
-        CASE 
-          WHEN NOW() > upcoming_time AND NOW() < start_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Oncoming'
-          WHEN NOW() > start_time AND NOW() < end_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Ongoing'
-          WHEN NOW() < start_time AND BK.is_active = 'T' THEN 'Pending'
-          WHEN NOW() > end_time OR BK.is_active = 'F' OR BK.approval = 'rejected' THEN 'Inactive' 
-          ELSE ''
-        END AS status
+        approval
       FROM
         (
         SELECT
@@ -239,8 +241,9 @@ const BookReqController = {
         ) BK 
         LEFT JOIN mst_room MR ON BK.id_ruangan = MR.id_ruangan 
         WHERE id_user = ? AND BK.is_active = 'T' AND (book_date = ? OR ? IS NULL)
-        ORDER BY book_date DESC`,
-        [userid, book_date, book_date]
+        ORDER BY book_date DESC
+        LIMIT ?`,
+        [userid, book_date, book_date, limit]
       );
       const data = showData[0];
       res.status(200).send({ data: data });
