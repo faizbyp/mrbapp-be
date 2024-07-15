@@ -177,7 +177,7 @@ const UserController = {
       await client.rollback();
       console.error(error);
       res.status(500).send({
-        message: "failed to register",
+        message: error.message,
       });
     } finally {
       client.release();

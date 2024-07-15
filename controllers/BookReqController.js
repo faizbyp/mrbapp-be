@@ -29,7 +29,7 @@ const BookReqController = {
     console.log(ai_book);
     const today = new Date();
     const month = today.getMonth() + 1;
-    const id_booking =
+    const id_ticket =
       "RM" +
       today.getFullYear().toString().slice(-2) +
       ("0" + month).slice(-2) +
@@ -51,7 +51,7 @@ const BookReqController = {
       id_book: id_book,
       is_active: "T",
       id_notif: id_notif,
-      id_booking: id_booking,
+      id_ticket: id_ticket,
       approval: "pending",
       check_in: "F",
       check_out: "F",
@@ -62,7 +62,7 @@ const BookReqController = {
       await client.query(query, value);
       res.status(200).send({
         message: "Room Booked",
-        id_book: id_book,
+        id_ticket: id_ticket,
       });
       client.commit();
     } catch (error) {
@@ -208,6 +208,7 @@ const BookReqController = {
         time_start,
         time_end,
         book_date,
+        approval,
         CASE 
           WHEN NOW() > upcoming_time AND NOW() < start_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Oncoming'
           WHEN NOW() > start_time AND NOW() < end_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Ongoing'
