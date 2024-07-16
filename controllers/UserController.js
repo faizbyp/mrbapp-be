@@ -317,6 +317,26 @@ const UserController = {
       }
     }
   },
+
+  getEmailDomain: async (req, res) => {
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+    try {
+      await client.beginTransaction();
+      const getEmail = await client.query(`
+        SELECT domain FROM allowed_email
+        `);
+      await client.commit();
+      res.status(200).send({ data: getEmail[0] });
+    } catch (error) {
+      await client.rollback();
+      res.status(500).send({
+        message: error.message,
+      });
+    } finally {
+      client.release();
+    }
+  },
 };
 
 module.exports = UserController;

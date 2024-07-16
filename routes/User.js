@@ -10,4 +10,6 @@ router.post("/verifresotp", controller.verifResetPass);
 router.post("/resetpass", controller.resetPassword);
 router.post("/refreshtoken", controller.refreshToken);
 
+router.get("/email", controller.getEmailDomain);
+
 module.exports = router;
