@@ -337,6 +337,26 @@ const UserController = {
       client.release();
     }
   },
+
+  getBizUnit: async (req, res) => {
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+    try {
+      await client.beginTransaction();
+      const getUnit = await client.query(`
+        SELECT * FROM mst_biz_unit
+        `);
+      await client.commit();
+      res.status(200).send({ data: getUnit[0] });
+    } catch (error) {
+      await client.rollback();
+      res.status(500).send({
+        message: error.message,
+      });
+    } finally {
+      client.release();
+    }
+  },
 };
 
 module.exports = UserController;

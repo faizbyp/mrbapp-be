@@ -11,5 +11,6 @@ router.post("/resetpass", controller.resetPassword);
 router.post("/refreshtoken", controller.refreshToken);
 
 router.get("/email", controller.getEmailDomain);
+router.get("/bizunit", controller.getBizUnit);
 
 module.exports = router;
