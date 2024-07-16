@@ -56,6 +56,7 @@ const BookReqController = {
       agenda: data.agenda,
       prtcpt_ctr: data.participant,
       remark: data.remark,
+      category: data.category,
       id_book: id_book,
       is_active: "T",
       id_notif: id_notif,

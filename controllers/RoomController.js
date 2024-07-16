@@ -119,6 +119,7 @@ const RoomController = {
       time_start: data.time_start,
       time_end: data.time_end,
       prtcpt_ctr: data.participant,
+      category: data.category,
       id_book: data.id_book ? data.id_book : "",
     };
 
@@ -129,6 +130,7 @@ const RoomController = {
       const getRoom = await client.query(
         `SELECT mst_room.id_ruangan, mst_room.nama, mst_room.kapasitas FROM mst_room
           WHERE mst_room.kapasitas >= ?
+          AND mst_room.category = ?
 		      AND mst_room.is_active = 'T'
           AND mst_room.id_ruangan NOT IN (
             SELECT distinct req_book.id_ruangan
@@ -144,6 +146,7 @@ const RoomController = {
           ORDER BY mst_room.kapasitas`,
         [
           payload.prtcpt_ctr,
+          payload.category,
           payload.book_date,
           payload.id_book,
           payload.time_end,
