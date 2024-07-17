@@ -14,7 +14,7 @@ const credentials = require("./middleware/credential");
 const routers = require("./routes");
 const BookingChores = require("./helper/BookingChores");
 const NotificationManager = require("./helper/NotificationManager");
-
+const port = process.env.PORT;
 const corsOption = {
   origin: function (req, callback) {
     if (whitelist.indexOf(req) !== -1) {
@@ -28,6 +28,11 @@ const corsOption = {
   exposedHeaders: ["set-cookie"],
 };
 
+const servOption = {
+  cert: fs.readFileSync("./ssl/certificate.crt"),
+  key: fs.readFileSync("./ssl/private-key.pem"),
+};
+
 app.use(credentials);
 app.use(cors(corsOption));
 app.use(express.json());
@@ -35,10 +40,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(routers);
 app.use("/static", express.static("public")); // http://localhost:5000/static/img/office1.jpg
-
-app.listen(process.env.PORT, "0.0.0.0", () => {
-  console.log(`App running on ${process.env.PORT}`);
-});
-
 NotificationManager.CleanUpCron();
 NotificationManager.ReRunCron();
+
+// app.listen(process.env.PORT, "0.0.0.0", () => {
+//   console.log(`App running on ${process.env.PORT}`);
+// });
+
+const server = https.createServer(servOption, app).listen(port, () => {
+  console.log(`App running on ${port}`);
+});

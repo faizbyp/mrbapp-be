@@ -20,10 +20,7 @@ NotificationManager.CreateNewCron = async (
   const client = await Client.initConnection();
   try {
     await client.beginTransaction();
-    const getSubs = await client.query(
-      "SELECT * from notif_sub where id_user = ?",
-      [id_user]
-    );
+    const getSubs = await client.query("SELECT * from notif_sub where id_user = ?", [id_user]);
     const subs = getSubs[0].map((item) => ({
       endpoint: item.endpoint_sub,
       keys: {
@@ -92,9 +89,7 @@ NotificationManager.CleanUpCron = async () => {
       delete cronTasks[item];
     });
     const forDelete = pushedData.map((item) => `'${item}'`);
-    const deletePushed = await client.query(
-      `DELETE FROM push_sched WHERE is_pushed = 1`
-    );
+    const deletePushed = await client.query(`DELETE FROM push_sched WHERE is_pushed = 1`);
     console.log("notif cleaned");
     await client.commit();
   } catch (error) {
@@ -158,9 +153,11 @@ NotificationManager.ReRunCron = async () => {
     dataCron.forEach((item) => {
       const schedule = moment(item.notif_time).format("s m H D M *");
       console.log(schedule);
-      cron.schedule(schedule, () => rerunNotif(item), {
-        name: item.id_notif,
-      });
+      if (schedule !== "Invalid date") {
+        cron.schedule(schedule, () => rerunNotif(item), {
+          name: item.id_notif,
+        });
+      }
     });
     console.log("notif repushed");
   } catch (error) {
