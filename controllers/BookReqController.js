@@ -178,11 +178,14 @@ const BookReqController = {
       await client.beginTransaction();
       const book_date = req.query.book_date || null;
       const approval = req.query.approval || null;
+      const room = req.query.room || null;
       const showall = await client.query(
         `SELECT req_book.*, mst_user.username FROM req_book LEFT JOIN mst_user ON req_book.id_user = mst_user.id_user
-        WHERE (req_book.book_date = ? OR ? IS NULL) AND (req_book.approval = ? OR ? IS NULL)
+        WHERE (req_book.book_date = ? OR ? IS NULL)
+        AND (req_book.approval = ? OR ? IS NULL)
+        AND (req_book.id_ruangan = ? OR ? IS NULL)
         ORDER BY req_book.id DESC`,
-        [book_date, book_date, approval, approval]
+        [book_date, book_date, approval, approval, room, room]
       );
       await client.commit();
       res.status(200).send({ data: showall[0] });
