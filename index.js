@@ -29,8 +29,8 @@ const corsOption = {
 };
 
 const servOption = {
-  cert: fs.readFileSync("./ssl/certificate.crt"),
-  key: fs.readFileSync("./ssl/private-key.pem"),
+  cert: fs.readFileSync("./ssl/cert.pem"),
+  key: fs.readFileSync("./ssl/key.pem"),
 };
 
 app.use(credentials);
