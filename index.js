@@ -43,7 +43,7 @@ app.use("/static", express.static("public")); // http://localhost:5000/static/im
 NotificationManager.CleanUpCron();
 NotificationManager.ReRunCron();
 
-app.listen(process.env.PORT, "0.0.0.0", () => {
+app.listen(process.env.PORT, () => {
   console.log(`App running on ${process.env.PORT}`);
 });
 
