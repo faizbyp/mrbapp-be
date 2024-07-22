@@ -43,10 +43,10 @@ app.use("/static", express.static("public")); // http://localhost:5000/static/im
 NotificationManager.CleanUpCron();
 NotificationManager.ReRunCron();
 
-// app.listen(process.env.PORT, "0.0.0.0", () => {
-//   console.log(`App running on ${process.env.PORT}`);
-// });
-
-const server = https.createServer(servOption, app).listen(port, () => {
-  console.log(`App running on ${port}`);
+app.listen(process.env.PORT, "0.0.0.0", () => {
+  console.log(`App running on ${process.env.PORT}`);
 });
+
+// const server = https.createServer(servOption, app).listen(port, () => {
+//   console.log(`App running on ${port}`);
+// });
