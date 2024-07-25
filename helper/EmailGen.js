@@ -1,3 +1,4 @@
+const moment = require("moment");
 const EmailGen = {};
 
 EmailGen.NotifyApproved = (data) => {
@@ -15,27 +16,27 @@ EmailGen.NotifyApproved = (data) => {
   </p>
   <table style="width: 100%">
     <tr>
-      <td>Agenda</td>
+      <td style="width:25%">Agenda</td>
       <td>${data.agenda}</td>
     </tr>
     <tr>
-      <td>Remark</td>
+      <td style="width:25%">Remark</td>
       <td>${data.remark}</td>
     </tr>
     <tr>
-      <td>Room</td>
+      <td style="width:25%">Room</td>
       <td>${data.ruangan}</td>
     </tr>
     <tr>
-      <td>Booking Date</td>
-      <td>${data.book_date}</td>
+      <td style="width:25%">Booking Date</td>
+      <td>${moment(data.book_date).format("DD-MM-YYYY")}</td>
     </tr>
     <tr>
-      <td>Time</td>
+      <td style="width:25%">Time</td>
       <td>${data.time_start} - ${data.time_end}</td>
     </tr>
     <tr>
-      <td>Participants</td>
+      <td style="width:25%">Participants</td>
       <td>${data.capacity}</td>
     </tr>
   </table>
@@ -60,27 +61,27 @@ EmailGen.NotifyRejected = (data) => {
   </p>
   <table style="width: 100%">
     <tr>
-      <td>Agenda</td>
+      <td style="width:25%">Agenda</td>
       <td>${data.agenda}</td>
     </tr>
     <tr>
-      <td>Remark</td>
+      <td style="width:25%">Remark</td>
       <td>${data.remark}</td>
     </tr>
     <tr>
-      <td>Room</td>
+      <td style="width:25%">Room</td>
       <td>${data.ruangan}</td>
     </tr>
     <tr>
-      <td>Booking Date</td>
-      <td>${data.book_date}</td>
+      <td style="width:25%">Booking Date</td>
+      <td>${moment(data.book_date).format("DD-MM-YYYY")}</td>
     </tr>
     <tr>
-      <td>Time</td>
+      <td style="width:25%">Time</td>
       <td>${data.time_start} - ${data.time_end}</td>
     </tr>
     <tr>
-      <td>Participants</td>
+      <td style="width:25%">Participants</td>
       <td>${data.capacity}</td>
     </tr>
   </table>
