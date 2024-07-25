@@ -34,7 +34,6 @@ const UserController = {
       await client.beginTransaction();
       const emailoruname = req.body.username;
       const password = req.body.password;
-      const subscription = JSON.parse(req.body.subscription);
       const now = new Date();
       const checkUserData = await client.query(
         "SELECT email, username, password, nama, id_user, role_id FROM MST_USER where username = ? or email = ?",
@@ -44,25 +43,28 @@ const UserController = {
         throw new Error("User not found");
       }
       const data = checkUserData[0][0];
-      const checkUserSub = await client.query("SELECT id FROM notif_sub WHERE endpoint_sub = ?", [
-        subscription.sub.endpoint,
-      ]);
-      if (checkUserSub[0].length !== 0) {
-        const deleteSub = await client.query("DELETE FROM notif_sub where endpoint_sub = ?", [
+      if (req.body.subscription) {
+        const subscription = JSON.parse(req.body.subscription);
+        const checkUserSub = await client.query("SELECT id FROM notif_sub WHERE endpoint_sub = ?", [
           subscription.sub.endpoint,
         ]);
+        if (checkUserSub[0].length !== 0) {
+          const deleteSub = await client.query("DELETE FROM notif_sub where endpoint_sub = ?", [
+            subscription.sub.endpoint,
+          ]);
+        }
+        let dataNotifSub = [
+          data.id_user,
+          subscription.sub.endpoint,
+          subscription.sub.keys.p256dh,
+          subscription.sub.keys.auth,
+          moment(now).format(),
+        ];
+        let insertNotifSub = await client.query(
+          "INSERT INTO notif_sub(id_user, endpoint_sub, p256dh_sub, auth_sub, created_date) VALUES(?,?,?,?,?)",
+          dataNotifSub
+        );
       }
-      let dataNotifSub = [
-        data.id_user,
-        subscription.sub.endpoint,
-        subscription.sub.keys.p256dh,
-        subscription.sub.keys.auth,
-        moment(now).format(),
-      ];
-      let insertNotifSub = await client.query(
-        "INSERT INTO notif_sub(id_user, endpoint_sub, p256dh_sub, auth_sub, created_date) VALUES(?,?,?,?,?)",
-        dataNotifSub
-      );
       await client.commit();
       const refreshToken = jwt.sign(
         {
