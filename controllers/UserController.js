@@ -43,7 +43,7 @@ const UserController = {
         throw new Error("User not found");
       }
       const data = checkUserData[0][0];
-      if (req.body.subscription) {
+      if (req.body.subscription !== undefined) {
         const subscription = JSON.parse(req.body.subscription);
         const checkUserSub = await client.query("SELECT id FROM notif_sub WHERE endpoint_sub = ?", [
           subscription.sub.endpoint,
