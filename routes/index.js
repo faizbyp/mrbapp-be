@@ -5,6 +5,7 @@ const Example = require("../controllers/ExampleController");
 const Book = require("./Book");
 const User = require("./User");
 const Room = require("./Room");
+const Tab = require("./Tab");
 const Notif = require("../controllers/NotificationController");
 
 //@using router
@@ -12,6 +13,7 @@ const Notif = require("../controllers/NotificationController");
 router.use("/be-api/book", Book);
 router.use("/be-api/user", User);
 router.use("/be-api/room", Room);
+router.use("/be-api/tab", Tab);
 router.get("/be-api/notif", Notif.PushMultiNotif);
 router.get("/be-api/testcron", Example.cronTest);
 
