@@ -9,11 +9,11 @@ const Notif = require("../controllers/NotificationController");
 
 //@using router
 // router.use('/api/<endpoint>', <controller>)
-router.use("/api/book", Book);
-router.use("/api/user", User);
-router.use("/api/room", Room);
-router.get("/api/notif", Notif.PushMultiNotif);
-router.get("/api/testcron", Example.cronTest);
+router.use("/be-api/book", Book);
+router.use("/be-api/user", User);
+router.use("/be-api/room", Room);
+router.get("/be-api/notif", Notif.PushMultiNotif);
+router.get("/be-api/testcron", Example.cronTest);
 
 // router.use("/api", (req, res) => {
 //   res.status(200).send({
