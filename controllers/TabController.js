@@ -124,7 +124,7 @@ const TabController = {
         [formattedDate, ipAddress, formattedTime]
       );
       await client.commit();
-      res.status(200).send(data[0][0]);
+      res.status(200).send(data[0]);
       console.log(data);
     } catch (error) {
       await client.rollback();
