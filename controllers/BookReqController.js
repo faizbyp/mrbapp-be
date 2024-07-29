@@ -128,10 +128,11 @@ const BookReqController = {
       await client.beginTransaction();
       const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
       const updateData = await client.query(query, value);
+      const q = await client.query("SELECT id_ticket from req_book where id_book = ?", [id_book]);
       await client.commit();
       res.status(200).send({
         message: "Book updated",
-        id_book: id_book,
+        id_ticket: q[0][0].id_ticket,
       });
       console.log(query, value);
       console.log(updateData);
