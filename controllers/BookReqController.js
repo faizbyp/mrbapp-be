@@ -123,6 +123,7 @@ const BookReqController = {
         agenda: data.agenda,
         prtcpt_ctr: data.participant,
         remark: data.remark,
+        approval: "pending",
       };
       await client.beginTransaction();
       const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
