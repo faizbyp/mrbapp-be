@@ -67,6 +67,7 @@ const TabController = {
             a.approval = 'approved' AND
             c.ip_address = ? AND
             a.time_start <= ? AND
+            a.check_out = 'F' AND
             a.time_end >= ?`,
         [formattedDate, ipAddress, formattedTime, formattedTime]
       );
