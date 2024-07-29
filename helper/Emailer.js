@@ -6,6 +6,7 @@ const EmailGen = require("./EmailGen");
 class Mailer {
   constructor() {
     this.tp = mailer.createTransport({
+      name: "kpndomain.com",
       host: process.env.SMTP_HOST,
       secure: true,
       port: process.env.SMPT_PORT,
@@ -44,7 +45,8 @@ class Mailer {
       text: `This is your OTP Code : ${otpCode}, this code will expired after 5 minute. Please insert before expiry time`,
     };
     try {
-      await this.tp.sendMail(setup);
+      const send = await this.tp.sendMail(setup);
+      console.log("success", send);
       return emailTarget;
     } catch (error) {
       console.error(error);
@@ -74,7 +76,8 @@ class Mailer {
       };
     }
     try {
-      await this.tp.sendMail(setup);
+      const send = await this.tp.sendMail(setup);
+      console.log(send);
       return data.email;
     } catch (error) {
       console.error(error);

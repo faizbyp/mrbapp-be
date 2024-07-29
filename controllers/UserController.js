@@ -171,6 +171,7 @@ const UserController = {
 
       const Email = new Emailer();
       const result = await Email.otpVerifyNew(otpCode, payload.email);
+      console.log(result);
       await client.commit();
       res.status(200).send({
         message: "User registered, please verify with otp",
@@ -232,7 +233,7 @@ const UserController = {
     try {
       const checkRegis = await client.query("SELECT * FROM mst_user where email = ?", [email]);
       if (checkRegis[0].length === 0) {
-        throw new Error("User not registred yet");
+        throw new Error("User not registered yet");
       }
       const [otpCode, encodedOTP, validUntil] = OTPHandler.createOTP();
       const payload = {
@@ -246,6 +247,7 @@ const UserController = {
       const [queryOTP, valOTP] = Conn.insertQuery(payload, "otp_trans");
       const insertOTP = await client.query(queryOTP, valOTP);
       const sendEmail = await Mailer.otpResetPass(otpCode, email);
+      console.log(sendEmail);
       res.status(200).send({
         message: "OTP has sent, please check your email address",
       });
