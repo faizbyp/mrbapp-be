@@ -185,6 +185,7 @@ NotificationManager.CreateNewCronMail = async (timeSched, data) => {
         name: data.book_date + data.time_start,
       }
     );
+    console.log("CRON EMAIL CREATED", schedule, data.email);
     // await client.commit();
   } catch (error) {
     // await client.rollback();

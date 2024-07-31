@@ -106,14 +106,14 @@ class Mailer {
   async reminder(data) {
     const setup = {
       from: process.env.SMTP_USERNAME,
-      to: adminEmail,
+      to: data.email,
       subject: "Roomeet - Check In Reminder",
       html: EmailGen.NewBookMail(data),
     };
     try {
       const send = await this.tp.sendMail(setup);
       console.log("success", send);
-      return adminEmail;
+      return data.email;
     } catch (error) {
       console.error(error);
       throw error;
