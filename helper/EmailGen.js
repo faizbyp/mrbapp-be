@@ -101,9 +101,9 @@ EmailGen.NewBookMail = (data) => {
     alt="KPN Corp"
   />
   <h1>Roomeet</h1>
-  <p>Hello, Admin</p>
+  <p>Hello, ${data.username}</p>
   <p>
-    There's a new booking, <strong>"${data.agenda}"</strong>
+    Don't forget to check in on your meeting, <strong>"${data.agenda}"</strong>
   </p>
   <table style="width: 100%">
     <tr>
@@ -136,9 +136,6 @@ EmailGen.NewBookMail = (data) => {
     </tr>
   </table>
   <br>
-  <a href="https://mrbapp.nematodez.my.id/admin/approval/${
-    data.id_book
-  }">Click here to check details</a>
   <hr />
   <p>Thank you.</p>
 </main>`;

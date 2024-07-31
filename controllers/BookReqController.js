@@ -318,6 +318,7 @@ const BookReqController = {
           id_book,
           id_notif
         );
+        await Notif.CreateNewCronMail(bookDate, data);
       }
       const Email = new Emailer();
       await Email.approvalNotif(data);

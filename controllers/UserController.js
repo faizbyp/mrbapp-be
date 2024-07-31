@@ -209,6 +209,7 @@ const UserController = {
         client.query(qDeleteOTP, valDelOTP),
       ];
       const result = Promise.all(promises);
+      console.log(result);
       await client.commit();
       res.status(200).send({
         message: "User Validated",

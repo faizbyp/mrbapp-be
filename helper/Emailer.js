@@ -102,6 +102,23 @@ class Mailer {
       throw error;
     }
   }
+
+  async reminder(data) {
+    const setup = {
+      from: process.env.SMTP_USERNAME,
+      to: adminEmail,
+      subject: "Roomeet - Check In Reminder",
+      html: EmailGen.NewBookMail(data),
+    };
+    try {
+      const send = await this.tp.sendMail(setup);
+      console.log("success", send);
+      return adminEmail;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 }
 
 module.exports = Mailer;

@@ -79,6 +79,16 @@ BookingChores.CleanUp = async () => {
   }
 };
 
+// BookingChores.EmailReminder = async () => {
+//   const Client = new DbConn();
+//   const client = await Client.initConnection();
+//   try {
+
+//   } catch (error) {
+
+//   }
+// }
+
 setInterval(async () => {
   try {
     const result = await BookingChores.CleanUp();
@@ -88,3 +98,7 @@ setInterval(async () => {
     console.log(error);
   }
 }, 60 * 1000);
+
+// setInterval(() => {
+//   console.log("SEND EMAIL");
+// }, 5 * 60 * 1000);

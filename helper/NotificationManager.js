@@ -3,6 +3,7 @@ const DbConn = require("./DbTransaction");
 const webpush = require("web-push");
 const moment = require("moment");
 const uuid = require("uuidv4");
+const Emailer = require("../helper/Emailer");
 
 const NotificationManager = {};
 
@@ -162,6 +163,34 @@ NotificationManager.ReRunCron = async () => {
     console.log("notif repushed");
   } catch (error) {
     console.error(error);
+  }
+};
+
+NotificationManager.CreateNewCronMail = async (timeSched, data) => {
+  // const Client = new DbConn();
+  // const client = await Client.initConnection();
+  try {
+    // await client.beginTransaction();
+    // await client.query();
+    const Email = new Emailer();
+    const schedule = moment(timeSched).format("s m H D M *");
+    console.log(schedule);
+    cron.schedule(
+      schedule,
+      async () => {
+        console.log("CRON EMAIL NOTIF", data);
+        await Email.reminder(data);
+      },
+      {
+        name: data.book_date + data.time_start,
+      }
+    );
+    // await client.commit();
+  } catch (error) {
+    // await client.rollback();
+    console.log(error);
+  } finally {
+    // client.release();
   }
 };
 
