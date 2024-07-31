@@ -18,7 +18,7 @@ const TabController = {
         [ipAddress]
       );
       await client.commit();
-      res.status(200).send(data[0][0]);
+      res.status(200).send(data[0]);
       console.log(data);
     } catch (error) {
       await client.rollback();
@@ -72,7 +72,7 @@ const TabController = {
         [formattedDate, ipAddress, formattedTime, formattedTime]
       );
       await client.commit();
-      res.status(200).send(data[0][0]);
+      res.status(200).send(data[0]);
       console.log(data);
     } catch (error) {
       await client.rollback();
