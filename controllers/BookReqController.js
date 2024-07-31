@@ -247,7 +247,7 @@ const BookReqController = {
         ) BK 
         LEFT JOIN mst_room MR ON BK.id_ruangan = MR.id_ruangan 
         WHERE id_user = ? AND BK.is_active = 'T' AND (book_date = ? OR ? IS NULL)
-        ORDER BY book_date DESC
+        ORDER BY book_date
         LIMIT ?`,
         [userid, book_date, book_date, limit]
       );
