@@ -25,8 +25,8 @@ class Mailer {
     const setup = {
       from: process.env.SMTP_USERNAME,
       to: emailTarget,
-      subject: "Verify New User - OTP",
-      text: `This is your OTP Code : ${otpCode}, this code will expired after 5 minute. Please insert before expiry time`,
+      subject: "Roomeet - OTP New User",
+      text: `This is your OTP Code: ${otpCode}, this code will expired after 5 minute. Please insert before expiry time`,
     };
     try {
       await this.tp.sendMail(setup);
@@ -41,8 +41,8 @@ class Mailer {
     const setup = {
       from: process.env.SMTP_USERNAME,
       to: emailTarget,
-      subject: "Reset Password - OTP",
-      text: `This is your OTP Code : ${otpCode}, this code will expired after 5 minute. Please insert before expiry time`,
+      subject: "Roomeet - Reset Password",
+      text: `This is your OTP Code: ${otpCode}, this code will expired after 5 minute. Please insert before expiry time`,
     };
     try {
       const send = await this.tp.sendMail(setup);
@@ -79,6 +79,24 @@ class Mailer {
       const send = await this.tp.sendMail(setup);
       console.log(send);
       return data.email;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async newBooking(data) {
+    const adminEmail = "faizbyp@gmail.com";
+    const setup = {
+      from: process.env.SMTP_USERNAME,
+      to: adminEmail,
+      subject: "Roomeet - New Booking",
+      html: EmailGen.NewBookMail(data),
+    };
+    try {
+      const send = await this.tp.sendMail(setup);
+      console.log("success", send);
+      return adminEmail;
     } catch (error) {
       console.error(error);
       throw error;

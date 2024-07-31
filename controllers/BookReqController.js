@@ -69,6 +69,8 @@ const BookReqController = {
       await client.beginTransaction();
       const [query, value] = await Client.insertQuery(payload, "req_book");
       await client.query(query, value);
+      const Email = new Emailer();
+      await Email.newBooking(payload);
       res.status(200).send({
         message: "Room Booked",
         id_ticket: id_ticket,
