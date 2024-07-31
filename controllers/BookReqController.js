@@ -28,24 +28,12 @@ const BookReqCol = [
 
 const BookReqController = {
   createBook: async (req, res) => {
+    const data = req.body.data;
     const Client = new DbConn();
     const client = await Client.initConnection();
-    const data = req.body.data;
-    // AI AUTO INCREMENT
-    const ai = await client.query("SELECT id from req_book order by id desc limit 1;");
-    const ai_book = ai[0][0].id % 999;
-    console.log(ai_book);
     const today = new Date();
-    const month = today.getMonth() + 1;
-    const id_ticket =
-      "RM" +
-      today.getFullYear().toString().slice(-2) +
-      ("0" + month).slice(-2) +
-      ("0" + today.getDate()).slice(-2) +
-      ("000" + ai_book).slice(-3);
     const id_book = uuid.uuid();
     const id_notif = uuid.uuid();
-    const bookDate = moment(new Date(`${data.book_date} ${data.time_start}`)).subtract(15, "m");
     const payload = {
       id_ruangan: data.id_ruangan,
       id_user: data.id_user,
@@ -60,20 +48,21 @@ const BookReqController = {
       id_book: id_book,
       is_active: "T",
       id_notif: id_notif,
-      id_ticket: id_ticket,
       approval: "pending",
       check_in: "F",
       check_out: "F",
     };
+
     try {
       await client.beginTransaction();
       const [query, value] = await Client.insertQuery(payload, "req_book");
       await client.query(query, value);
+      const q = await client.query("SELECT id_ticket from req_book where id_book = ?", [id_book]);
       const Email = new Emailer();
       await Email.newBooking(payload);
       res.status(200).send({
         message: "Room Booked",
-        id_ticket: id_ticket,
+        id_ticket: q[0][0].id_ticket,
       });
       client.commit();
     } catch (error) {
