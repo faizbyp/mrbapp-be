@@ -216,6 +216,7 @@ const BookReqController = {
       const showData = await client.query(
         `SELECT
         id_book,
+        id_ticket,
         id_user,
         MR.nama as nama_ruangan,
         MR.id_ruangan as id_room,
@@ -230,6 +231,7 @@ const BookReqController = {
         (
         SELECT
           id_book,
+          id_ticket,
           id_ruangan,
           agenda,
           id_user,
