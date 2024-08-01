@@ -16,6 +16,7 @@ const BookingChores = require("./helper/BookingChores");
 const NotificationManager = require("./helper/NotificationManager");
 const port = process.env.PORT;
 const corsOption = {
+  credentials: true,
   origin: function (req, callback) {
     if (whitelist.indexOf(req) !== -1) {
       callback(null, true);
