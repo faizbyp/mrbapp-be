@@ -43,6 +43,7 @@ app.use(routers);
 app.use("/static", express.static("public")); // http://localhost:5000/static/img/office1.jpg
 NotificationManager.CleanUpCron();
 NotificationManager.ReRunCron();
+NotificationManager.ReRunCronMail();
 
 app.listen(process.env.PORT, () => {
   console.log(`App running on ${process.env.PORT}`);

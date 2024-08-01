@@ -31,9 +31,9 @@ NotificationManager.CreateNewCron = async (
     }));
     const dateNotif = moment(timeSched).format();
     const schedule = moment(timeSched).format("s m H D M *");
-    const payload = [id_book, dateNotif, 0, id_notif, title, message];
+    const payload = [id_book, dateNotif, 0, id_notif, title, message, "push"];
     const insertSched = await client.query(
-      "INSERT INTO push_sched(id_req, notif_time, is_pushed, id_notif, title_notif, message) VALUES(?,?,?,?,?,?) ;",
+      "INSERT INTO push_sched(id_req, notif_time, is_pushed, id_notif, title_notif, message, type) VALUES(?,?,?,?,?,?,?) ;",
       payload
     );
     await client.commit();
@@ -149,11 +149,11 @@ NotificationManager.ReRunCron = async () => {
     push_sched PS
     LEFT JOIN req_book REQ ON PS.id_req = REQ.id_book
     LEFT JOIN notif_sub NS ON NS.id_user = REQ.id_user
-    WHERE PS.is_pushed = 0`);
+    WHERE PS.is_pushed = 0 AND PS.type = 'push'`);
 
     dataCron.forEach((item) => {
       const schedule = moment(item.notif_time).format("s m H D M *");
-      console.log(schedule);
+      // console.log(schedule);
       if (schedule !== "Invalid date") {
         cron.schedule(schedule, () => rerunNotif(item), {
           name: item.id_notif,
@@ -163,15 +163,27 @@ NotificationManager.ReRunCron = async () => {
     console.log("notif repushed");
   } catch (error) {
     console.error(error);
+  } finally {
+    client.release();
   }
 };
 
 NotificationManager.CreateNewCronMail = async (timeSched, data) => {
-  // const Client = new DbConn();
-  // const client = await Client.initConnection();
+  const Client = new DbConn();
+  const client = await Client.initConnection();
   try {
-    // await client.beginTransaction();
-    // await client.query();
+    await client.beginTransaction();
+    const dateNotif = moment(timeSched).format();
+    const id_notif = uuid.uuid();
+    const payload = {
+      id_req: data.id_book,
+      notif_time: dateNotif,
+      is_pushed: 0,
+      id_notif: id_notif,
+      type: "email",
+    };
+    const [query, value] = await Client.insertQuery(payload, "push_sched");
+    await client.query(query, value);
     const Email = new Emailer();
     const schedule = moment(timeSched).format("s m H D M *");
     console.log(schedule);
@@ -182,16 +194,64 @@ NotificationManager.CreateNewCronMail = async (timeSched, data) => {
         await Email.reminder(data);
       },
       {
-        name: data.book_date + data.time_start,
+        name: id_notif,
       }
     );
     console.log("CRON EMAIL CREATED", schedule, data.email);
-    // await client.commit();
+    await client.commit();
   } catch (error) {
-    // await client.rollback();
+    await client.rollback();
     console.log(error);
   } finally {
-    // client.release();
+    client.release();
+  }
+};
+
+NotificationManager.ReRunCronMail = async () => {
+  const Client = new DbConn();
+  const client = await Client.initConnection();
+  try {
+    const Email = new Emailer();
+    const [dataCron, _] = await client.query(`SELECT
+      PS.notif_time,
+      PS.id_notif,
+      REQ.agenda,
+      REQ.id_ticket,
+      REQ.remark,
+      REQ.id_ruangan,
+      REQ.book_date,
+      REQ.time_start,
+      REQ.time_end,
+      REQ.prtcpt_ctr,
+      MU.username,
+      MU.email
+    FROM
+      push_sched PS
+      LEFT JOIN req_book REQ ON PS.id_req = REQ.id_book
+      LEFT JOIN mst_user MU ON REQ.id_user = MU.id_user
+      WHERE PS.is_pushed = 0 AND PS.type = 'email'`);
+
+    dataCron.forEach((item) => {
+      const schedule = moment(item.notif_time).format("s m H D M *");
+      console.log(schedule);
+      if (schedule !== "Invalid date") {
+        cron.schedule(
+          schedule,
+          async () => {
+            console.log("CRON EMAIL NOTIF", item);
+            await Email.reminder(item);
+          },
+          {
+            name: item.id_notif,
+          }
+        );
+      }
+    });
+    console.log("email notif recreated");
+  } catch (error) {
+    console.error(error);
+  } finally {
+    client.release();
   }
 };
 
