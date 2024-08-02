@@ -140,7 +140,7 @@ const RoomController = {
 					  req_book.book_date = ?
 					  AND IF (? = "", req_book.is_active = 'T', false)
 					  AND (
-              (req_book.time_start <= ? AND req_book.time_end >= ?)
+              (req_book.time_start < ? AND req_book.time_end > ?)
 					  )
           )
           ORDER BY mst_room.kapasitas`,
