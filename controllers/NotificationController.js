@@ -1,5 +1,15 @@
 const webpush = require("web-push");
 const DbConn = require("../helper/DbTransaction");
+const cron = require("node-cron");
+
+function mapToArray(map) {
+  return Array.from(map, ([key, value]) => ({
+    id_notif: key,
+    name: value.options.name,
+    // idle_start: value._scheduler.timeout._idleStart,
+  }));
+}
+
 webpush.setVapidDetails(
   "mailto:rtektano@gmail.com",
   process.env.PUBLICVAPID,
@@ -39,10 +49,7 @@ NotificationController.PushMultiNotif = async (req, res) => {
   const client = await Client.initConnection();
   const userId = "ecbd2ab7-5512-43e4-a76c-6f3cd218db10";
   try {
-    const getNotifTrg = await client.query(
-      `SELECT * FROM notif_sub WHERE id_user = ?`,
-      [userId]
-    );
+    const getNotifTrg = await client.query(`SELECT * FROM notif_sub WHERE id_user = ?`, [userId]);
     const dataTarget = getNotifTrg[0];
     const promises = [];
     dataTarget.forEach((item) => {
@@ -70,6 +77,17 @@ NotificationController.PushMultiNotif = async (req, res) => {
     res.status(500).send(error);
   } finally {
     client.release();
+  }
+};
+
+NotificationController.GetNotifCron = async (req, res) => {
+  try {
+    const cronData = cron.getTasks();
+    const data = mapToArray(cronData);
+    res.status(200).send({ data: data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: error });
   }
 };
 

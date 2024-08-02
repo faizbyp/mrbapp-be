@@ -19,11 +19,10 @@ BookingChores.userPenalty = async function (usersId, client) {
         "YYYY-M-D HH:mm:ss"
       )}' WHERE id_user in (${usersId.join(",")})`
     );
-    return `Penalty : ${usersId.join(",")}`;
+    return `Penalty: ${usersId.join(",")}`;
   } catch (error) {
-    console.error(error);
     await client.rollback();
-    throw error;
+    console.error(error);
   } finally {
     client.release();
   }
@@ -36,12 +35,18 @@ BookingChores.CleanUp = async () => {
   const idBook = new Set();
   try {
     await client.beginTransaction();
-    const res = await client.query(`SELECT
-      *
-    FROM
-      ( SELECT id_book, id_user, id_ruangan, book_date, time_start, time_end, is_active FROM req_book ) BOOK 
-    WHERE
-      TIMESTAMP (CONCAT( BOOK.book_date, ' ', BOOK.time_end )) < NOW() AND IS_ACTIVE = 'T'`);
+    const res = await client.query(`
+      SELECT
+        id_book, id_user, id_ruangan, book_date, time_start, time_end, is_active
+      FROM
+        req_book BOOK 
+      WHERE
+        TIMESTAMP (CONCAT( BOOK.book_date, ' ', BOOK.time_end )) < DATE_ADD(NOW(), INTERVAL 5 MINUTE)
+        AND
+        IS_ACTIVE = 'T'
+        AND
+        ((check_in = 'T' AND check_out = 'F') OR (check_in = 'F' AND check_out = 'F'))
+      `);
     const expiredBook = res[0];
     if (expiredBook.length === 0) {
       return "No expired booking, everything is clear";
@@ -64,7 +69,7 @@ BookingChores.CleanUp = async () => {
       )}) and penalty_until is null ;`
     );
     let userPen = resuser[0].map((item) => `'${item.id_user}'`);
-    // let upPen = await BookingChores.userPenalty(userPen, client);
+    let upPen = await BookingChores.userPenalty(userPen, client);
     const resUpBook = await client.query(
       `UPDATE req_book SET is_active = 'F' WHERE id_book in (${bookId.join(",")})`
     );
@@ -73,7 +78,7 @@ BookingChores.CleanUp = async () => {
     // const updateReqBook = Promise.all(promise);
   } catch (error) {
     await client.rollback();
-    throw error;
+    console.error(error);
   } finally {
     client.release();
   }

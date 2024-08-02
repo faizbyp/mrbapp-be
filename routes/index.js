@@ -15,6 +15,7 @@ router.use("/be-api/user", User);
 router.use("/be-api/room", Room);
 router.use("/be-api/tab", Tab);
 router.get("/be-api/notif", Notif.PushMultiNotif);
+router.get("/be-api/notif/cron", Notif.GetNotifCron);
 router.get("/be-api/testcron", Example.cronTest);
 
 // router.use("/api", (req, res) => {

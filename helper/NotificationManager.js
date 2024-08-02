@@ -84,13 +84,15 @@ NotificationManager.CleanUpCron = async () => {
     await client.beginTransaction();
     const cronTasks = cron.getTasks();
     const [pushedData, _] = await client.query(
-      "SELECT id_notif FROM push_sched WHERE is_pushed = 1"
+      "SELECT id_notif FROM push_sched WHERE is_pushed = 1 OR notif_time < NOW()"
     );
     pushedData.forEach((item) => {
-      delete cronTasks[item];
+      global.scheduledTasks.delete(item.id_notif);
     });
     const forDelete = pushedData.map((item) => `'${item}'`);
-    const deletePushed = await client.query(`DELETE FROM push_sched WHERE is_pushed = 1`);
+    const deletePushed = await client.query(
+      `DELETE FROM push_sched WHERE is_pushed = 1 OR notif_time < NOW()`
+    );
     console.log("notif cleaned");
     await client.commit();
   } catch (error) {
