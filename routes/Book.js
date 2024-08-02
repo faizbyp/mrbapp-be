@@ -1,5 +1,7 @@
 const BookReqController = require("../controllers/BookReqController");
 const BookCheck = require("../middleware/bookcheck");
+const Penalty = require("../middleware/penalty");
+const user = require("../controllers/UserController");
 const express = require("express");
 const router = express.Router();
 
@@ -10,7 +12,7 @@ router.patch("/checkout", BookReqController.checkOut);
 
 router.patch("/approval/:id_book", BookReqController.approval);
 
-router.post("/", BookCheck, BookReqController.createBook);
+router.post("/", Penalty, BookCheck, BookReqController.createBook);
 router.get("/", BookReqController.showAllBook);
 router.get("/show", BookReqController.showBookbyUser);
 router.get("/byroom", BookReqController.showBookbyRoom);

@@ -57,6 +57,7 @@ const BookReqController = {
       await client.beginTransaction();
       const [query, value] = await Client.insertQuery(payload, "req_book");
       await client.query(query, value);
+      console.log(query);
       const q = await client.query("SELECT id_ticket from req_book where id_book = ?", [id_book]);
       const Email = new Emailer();
       await Email.newBooking(payload);

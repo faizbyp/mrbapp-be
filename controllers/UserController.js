@@ -362,6 +362,59 @@ const UserController = {
       client.release();
     }
   },
+
+  checkPenalty: async (req, res) => {
+    const id_user = req.body.id_user;
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+    try {
+      await client.beginTransaction();
+      const updateData = await client.query(
+        `
+        UPDATE mst_user SET penalty_until = null 
+        WHERE id_user = ? AND penalty_until < NOW() 
+        `,
+        [id_user]
+      );
+      const select = await client.query(`SELECT penalty_until FROM mst_user WHERE id_user = ?`, [
+        id_user,
+      ]);
+      console.log(updateData);
+      const pen = select[0][0].penalty_until;
+      let penalty = null;
+      if (pen !== null) {
+        penalty = moment(pen).format("dddd, DD-MM-YYYY");
+      }
+      console.log(penalty);
+      await client.commit();
+      if (updateData[0].changedRows === 1) {
+        res.status(200).send({
+          updated: true,
+          message: "Your penalty is finished",
+        });
+        console.log(`${id_user} penalty finished`);
+      } else if (penalty !== null) {
+        res.status(403).send({
+          penalty: penalty,
+          message: `You have penalty until ${penalty}`,
+        });
+        console.log(`User have penalty until ${penalty}`);
+      } else {
+        res.status(200).send({
+          message: "User don't have penalty",
+        });
+        console.log("User don't have penalty");
+      }
+    } catch (error) {
+      await client.rollback();
+      res.status(500).send({
+        message: error,
+      });
+      console.error(error);
+    } finally {
+      client.release();
+    }
+  },
 };
 
 module.exports = UserController;

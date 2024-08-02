@@ -10,6 +10,7 @@ router.post("/verifresotp", controller.verifResetPass);
 router.post("/resetpass", controller.resetPassword);
 router.post("/refreshtoken", controller.refreshToken);
 
+router.patch("/penalty", controller.checkPenalty);
 router.get("/email", controller.getEmailDomain);
 router.get("/bizunit", controller.getBizUnit);
 
