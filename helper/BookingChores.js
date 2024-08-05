@@ -14,6 +14,11 @@ BookingChores.userPenalty = async function (usersId, client) {
     if (usersId.length === 0) {
       return "Users clear";
     }
+    const setPenalty = await client.query(
+      `UPDATE mst_user
+      SET penalty_until = '${moment(now).format("YYYY-M-D HH:mm:ss")}'
+      WHERE penalty_ctr >= 3 AND id_user in (${usersId.join(",")})`
+    );
     const setCounter = await client.query(
       `UPDATE mst_user 
       SET penalty_ctr = CASE 
@@ -21,11 +26,6 @@ BookingChores.userPenalty = async function (usersId, client) {
         ELSE penalty_ctr + 1 
       END
       WHERE id_user in (${usersId.join(",")})`
-    );
-    const setPenalty = await client.query(
-      `UPDATE mst_user
-      SET penalty_until = '${moment(now).format("YYYY-M-D HH:mm:ss")}'
-      WHERE penalty_ctr >= 3 AND id_user in (${usersId.join(",")})`
     );
     return `Penalty: ${usersId.join(",")}`;
   } catch (error) {
@@ -49,7 +49,7 @@ BookingChores.CleanUp = async () => {
       FROM
         req_book BOOK 
       WHERE
-        TIMESTAMP (CONCAT( BOOK.book_date, ' ', BOOK.time_end )) < DATE_ADD(NOW(), INTERVAL 5 MINUTE)
+        DATE_ADD(TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )), INTERVAL 5 MINUTE) < NOW()
         AND
         IS_ACTIVE = 'T'
         AND
