@@ -47,6 +47,7 @@ const TabController = {
             a.id_user,
             b.nama AS nama_user,
             b.business_unit,
+            d.division,
             a.book_date,
             a.category,
             a.time_start,
@@ -63,8 +64,11 @@ const TabController = {
         ON a.id_user = b.id_user
         LEFT JOIN mst_room c
         ON a.id_ruangan = c.id_ruangan
+        LEFT JOIN mst_biz_unit d
+        ON b.business_unit = d.id_unit
         WHERE a.book_date = ? AND
             a.approval = 'approved' AND
+            a.is_active = 'T' AND
             c.ip_address = ? AND
             a.time_start <= ? AND
             a.check_out = 'F' AND
@@ -101,6 +105,7 @@ const TabController = {
             a.id_user,
             b.nama AS nama_user,
             b.business_unit,
+            d.division,
             a.book_date,
             a.category,
             a.time_start,
@@ -117,8 +122,11 @@ const TabController = {
         ON a.id_user = b.id_user
         LEFT JOIN mst_room c
         ON a.id_ruangan = c.id_ruangan
+        LEFT JOIN mst_biz_unit d
+        ON b.business_unit = d.id_unit
         WHERE a.book_date = ? AND
             a.approval = 'approved' AND
+            a.is_active = 'T' AND
             c.ip_address = ? AND
             a.time_start > ?
             ORDER BY time_start ASC`,
@@ -154,12 +162,13 @@ const TabController = {
             a.id_user,
             b.nama AS nama_user,
             b.business_unit,
+            d.division,
             a.book_date,
             a.category,
             a.time_start,
             DATE_FORMAT(time_start, '%H:%i') AS time_start_formatted,
             a.time_end,
-            DATE_FORMAT(time_end, '%H:%i') AS time_start_formatted,
+            DATE_FORMAT(time_end, '%H:%i') AS time_end_formatted,
             a.agenda,
             a.prtcpt_ctr AS peserta,
             a.remark,
@@ -170,12 +179,13 @@ const TabController = {
         ON a.id_user = b.id_user
         LEFT JOIN mst_room c
         ON a.id_ruangan = c.id_ruangan
+        LEFT JOIN mst_biz_unit d
+        ON b.business_unit = d.id_unit
         WHERE a.book_date = ? AND
             a.approval = 'approved' AND
             c.ip_address = ? AND
             time_end < ?
-          ORDER BY (time_end) DESC
-          LIMIT 1`,
+          ORDER BY (time_end) ASC`,
         [formattedDate, ipAddress, formattedTime]
       );
       await client.commit();
