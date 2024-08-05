@@ -49,7 +49,7 @@ BookingChores.CleanUp = async () => {
       FROM
         req_book BOOK 
       WHERE
-        DATE_ADD(TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )), INTERVAL 5 MINUTE) < NOW()
+        DATE_ADD(TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )), INTERVAL 15 MINUTE) < NOW()
         AND
         IS_ACTIVE = 'T'
         AND

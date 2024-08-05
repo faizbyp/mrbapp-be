@@ -442,7 +442,7 @@ const BookReqController = {
           AND
           book_date = DATE_FORMAT(NOW(), '%Y-%m-%d')
           AND
-          curtime() BETWEEN SUBTIME(time_start, '1500') AND time_end
+          curtime() BETWEEN (time_start - INTERVAL 15 MINUTE) AND (time_start + INTERVAL 15 MINUTE)
         ) 
         `,
         [id_user]
