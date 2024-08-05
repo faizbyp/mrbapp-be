@@ -93,7 +93,58 @@ EmailGen.NotifyRejected = (data) => {
 </main>`;
 };
 
-EmailGen.NewBookMail = (data) => {
+EmailGen.NewBookMail = (data, id_ticket) => {
+  return `<main style="font-family: sans-serif">
+  <img
+    src="https://safetyfirstindonesia.co.id/assets/uploads/images/9f09b-kpn-corp.png"
+    width="40%"
+    alt="KPN Corp"
+  />
+  <h1>Roomeet</h1>
+  <p>Hello, Admin</p>
+  <p>
+    There's a new booking, <strong>"${data.agenda}"</strong>
+  </p>
+  <table style="width: 100%">
+    <tr>
+      <td style="width:25%">ID Ticket</td>
+      <td>${id_ticket}</td>
+    </tr>
+    <tr>
+      <td style="width:25%">Agenda</td>
+      <td>${data.agenda}</td>
+    </tr>
+    <tr>
+      <td style="width:25%">Remark</td>
+      <td>${data.remark}</td>
+    </tr>
+    <tr>
+      <td style="width:25%">Room</td>
+      <td>${data.id_ruangan}</td>
+    </tr>
+    <tr>
+      <td style="width:25%">Booking Date</td>
+      <td>${moment(data.book_date).format("DD-MM-YYYY")}</td>
+    </tr>
+    <tr>
+      <td style="width:25%">Time</td>
+      <td>${data.time_start} - ${data.time_end}</td>
+    </tr>
+    <tr>
+      <td style="width:25%">Participants</td>
+      <td>${data.prtcpt_ctr}</td>
+    </tr>
+  </table>
+  <br>
+  <a href="https://mrbapp.nematodez.my.id/admin/approval/${
+    data.id_book
+  }">Click here to check details</a>
+  <hr />
+  <p>Thank you.</p>
+</main>`;
+};
+
+EmailGen.reminderMail = (data) => {
   return `<main style="font-family: sans-serif">
   <img
     src="https://safetyfirstindonesia.co.id/assets/uploads/images/9f09b-kpn-corp.png"
@@ -136,6 +187,7 @@ EmailGen.NewBookMail = (data) => {
     </tr>
   </table>
   <br>
+  <a href="https://mrbapp.nematodez.my.id/dashboard">Please check in on your dashboard</a>
   <hr />
   <p>Thank you.</p>
 </main>`;

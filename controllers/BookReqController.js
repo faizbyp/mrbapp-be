@@ -59,11 +59,12 @@ const BookReqController = {
       await client.query(query, value);
       console.log(query);
       const q = await client.query("SELECT id_ticket from req_book where id_book = ?", [id_book]);
+      const id_ticket = q[0][0].id_ticket;
       const Email = new Emailer();
-      await Email.newBooking(payload);
+      await Email.newBooking(payload, id_ticket);
       res.status(200).send({
         message: "Room Booked",
-        id_ticket: q[0][0].id_ticket,
+        id_ticket: id_ticket,
       });
       client.commit();
     } catch (error) {

@@ -85,13 +85,13 @@ class Mailer {
     }
   }
 
-  async newBooking(data) {
-    const adminEmail = "anggi.pranasa@hotmail.com";
+  async newBooking(data, id_ticket) {
+    const adminEmail = "faizbyp@gmail.com";
     const setup = {
       from: process.env.SMTP_USERNAME,
       to: adminEmail,
       subject: "Roomeet - New Booking",
-      html: EmailGen.NewBookMail(data),
+      html: EmailGen.NewBookMail(data, id_ticket),
     };
     try {
       const send = await this.tp.sendMail(setup);
@@ -108,7 +108,7 @@ class Mailer {
       from: process.env.SMTP_USERNAME,
       to: data.email,
       subject: "Roomeet - Check In Reminder",
-      html: EmailGen.NewBookMail(data),
+      html: EmailGen.reminderMail(data),
     };
     try {
       const send = await this.tp.sendMail(setup);
