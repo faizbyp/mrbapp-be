@@ -23,10 +23,7 @@ const checkBook = async (req, res, next) => {
     AND book_date = ?
     AND is_active = 'T'
     AND (
-      ? BETWEEN time_start 
-      AND time_end 
-      OR ? BETWEEN time_start 
-    AND time_end 
+      (req_book.time_start < ? AND req_book.time_end > ?)
     ) ;
     `,
       [room, book_date, time_start, time_end]
