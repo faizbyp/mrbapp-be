@@ -1,6 +1,7 @@
 const DbConn = require("../helper/DbTransaction");
 const Emailer = require("../helper/Emailer");
 const Notif = require("../helper/NotificationManager");
+const cron = require("node-cron");
 const moment = require("moment");
 const uuid = require("uuidv4");
 
@@ -119,6 +120,15 @@ const BookReqController = {
         approval: "pending",
       };
       await client.beginTransaction();
+      console.log("BEFORE", cron.getTasks());
+      const notif = await client.query(
+        `SELECT id_notif FROM push_sched WHERE id_req = ? AND type = 'push'`,
+        [id_book]
+      );
+      const id_notif = notif[0][0].id_notif;
+      await client.query(`DELETE FROM push_sched WHERE id_req = ?`, [id_book]);
+      global.scheduledTasks.delete(id_notif);
+      console.log("BEFORE", cron.getTasks());
       const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
       const updateData = await client.query(query, value);
       const q = await client.query("SELECT id_ticket from req_book where id_book = ?", [id_book]);
