@@ -376,11 +376,13 @@ const UserController = {
         `,
         [id_user]
       );
-      const select = await client.query(`SELECT penalty_until FROM mst_user WHERE id_user = ?`, [
-        id_user,
-      ]);
+      const select = await client.query(
+        `SELECT penalty_until, penalty_ctr FROM mst_user WHERE id_user = ?`,
+        [id_user]
+      );
       console.log(updateData);
       const pen = select[0][0].penalty_until;
+      const counter = select[0][0].penalty_ctr;
       let penalty = null;
       if (pen !== null) {
         penalty = moment(pen).format("dddd, DD-MM-YYYY");
@@ -389,19 +391,22 @@ const UserController = {
       await client.commit();
       if (updateData[0].changedRows === 1) {
         res.status(200).send({
-          updated: true,
           message: "Your penalty is finished",
+          updated: true,
+          counter: counter,
         });
         console.log(`${id_user} penalty finished`);
       } else if (penalty !== null) {
         res.status(403).send({
-          penalty: penalty,
           message: `You have penalty until ${penalty}`,
+          penalty: penalty,
+          counter: counter,
         });
         console.log(`User have penalty until ${penalty}`);
       } else {
         res.status(200).send({
           message: "User don't have penalty",
+          counter: counter,
         });
         console.log("User don't have penalty");
       }
