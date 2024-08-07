@@ -157,7 +157,7 @@ const BookReqController = {
       await client.beginTransaction();
 
       const [query, value] = Client.updateQuery(
-        { is_active: "F" },
+        { is_active: "F", approval: "canceled" },
         { id_book: id_book },
         "req_book"
       );
@@ -330,8 +330,6 @@ const BookReqController = {
         id_book: id_book,
         reject_note: data.reject_note,
       });
-      console.log(query, value);
-      console.log(updateData);
     } catch (error) {
       await client.rollback();
       res.status(500).send({
