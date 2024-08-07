@@ -2,7 +2,6 @@
 require("dotenv").config({ path: `.env.development` });
 const moment = require("moment");
 const NotificationManager = require("./NotificationManager");
-
 const DbConn = require("./DbTransaction");
 
 const BookingChores = {};
@@ -11,28 +10,30 @@ BookingChores.userPenalty = async function (usersId, client) {
   let now = new Date();
   now = moment(now).add(3, "days");
   try {
+    console.log("usersId", usersId);
     if (usersId.length === 0) {
       return "Users clear";
     }
+    const placeholder = usersId.map(() => "?").join(",");
+    const penFormat = moment(now).format("YYYY-M-D HH:mm:ss");
     const setCounter = await client.query(
       `UPDATE mst_user 
       SET penalty_ctr = CASE 
         WHEN penalty_ctr >= 3 THEN 0 
         ELSE penalty_ctr + 1 
       END
-      WHERE id_user in (${usersId.join(",")})`
+      WHERE id_user IN (${placeholder})`,
+      [usersId]
     );
     const setPenalty = await client.query(
-      `UPDATE mst_user
-      SET penalty_until = '${moment(now).format("YYYY-M-D HH:mm:ss")}'
-      WHERE penalty_ctr >= 3 AND id_user in (${usersId.join(",")})`
+      `UPDATE mst_user SET penalty_until = ?
+      WHERE penalty_ctr >= 3 AND id_user IN (${placeholder})`,
+      [penFormat, usersId]
     );
     return `Penalty: ${usersId.join(",")}`;
   } catch (error) {
-    await client.rollback();
     console.error(error);
-  } finally {
-    client.release();
+    throw error;
   }
 };
 
@@ -49,7 +50,7 @@ BookingChores.CleanUp = async () => {
       FROM
         req_book BOOK 
       WHERE
-        DATE_ADD(TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )), INTERVAL 15 MINUTE) < NOW()
+        TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )) + INTERVAL 15 MINUTE < NOW()
         AND
         IS_ACTIVE = 'T'
         AND
@@ -72,14 +73,17 @@ BookingChores.CleanUp = async () => {
       bookId.push(`'${item}'`);
     });
     const resuser = await client.query(
-      `SELECT id_user, penalty_until from mst_user where id_user in (${usersPen.join(
+      `SELECT id_user, penalty_until from mst_user where id_user IN (${usersPen.join(
         ","
-      )}) and penalty_until is null ;`
+      )}) and penalty_until = null ;`
     );
     let userPen = resuser[0].map((item) => `'${item.id_user}'`);
     let upPen = await BookingChores.userPenalty(userPen, client);
     const resUpBook = await client.query(
-      `UPDATE req_book SET is_active = 'F' WHERE id_book in (${bookId.join(",")})`
+      `UPDATE req_book SET is_active = 'F'
+      WHERE TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )) + INTERVAL 15 MINUTE < NOW()
+      AND
+      id_book IN (${bookId.join(",")})`
     );
     await client.commit();
     return "success cleaning booking";

@@ -385,7 +385,7 @@ const UserController = {
       const counter = select[0][0].penalty_ctr;
       let penalty = null;
       if (pen !== null) {
-        penalty = moment(pen).format("dddd, DD-MM-YYYY");
+        penalty = moment(pen).format("dddd, DD-MM-YYYY, HH:mm");
       }
       console.log(penalty);
       await client.commit();
