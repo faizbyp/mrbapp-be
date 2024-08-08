@@ -486,7 +486,7 @@ const BookReqController = {
           AND
           book_date = DATE_FORMAT(NOW(), '%Y-%m-%d')
           AND
-          curtime() >= SUBTIME(time_start, '1500')
+          curtime() >= time_start
         ) 
         `,
         [id_user]
