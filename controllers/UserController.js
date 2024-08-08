@@ -371,7 +371,7 @@ const UserController = {
       await client.beginTransaction();
       const updateData = await client.query(
         `
-        UPDATE mst_user SET penalty_until = null 
+        UPDATE mst_user SET penalty_until = null, penalty_ctr = 0
         WHERE id_user = ? AND penalty_until < NOW() 
         `,
         [id_user]
