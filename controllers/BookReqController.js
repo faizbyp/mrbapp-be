@@ -209,7 +209,9 @@ const BookReqController = {
     try {
       const userid = req.query.id_user;
       const book_date = req.query.book_date || null;
-      // const limit = req.query.limit ? Number(req.query.limit) : 10;
+      const limit = req.query.limit ? Number(req.query.limit) : 50;
+      const status = req.query.status || null;
+      const active = req.query.active || null;
       if (userid === undefined) {
         throw Error("Request Error");
       }
@@ -251,9 +253,16 @@ const BookReqController = {
         req_book 
         ) BK 
         LEFT JOIN mst_room MR ON BK.id_ruangan = MR.id_ruangan 
-        WHERE id_user = ? AND (book_date = ? OR ? IS NULL)
-        ORDER BY book_date`,
-        [userid, book_date, book_date]
+        WHERE id_user = ?
+          AND
+            (book_date = ? OR ? IS NULL)
+          AND
+            (BK.is_active = ? OR ? IS NULL)
+          AND
+            (BK.approval = ? OR ? IS NULL)
+        ORDER BY book_date DESC
+        LIMIT ?`,
+        [userid, book_date, book_date, active, active, status, status, limit]
       );
       const data = showData[0];
       res.status(200).send({ data: data });
