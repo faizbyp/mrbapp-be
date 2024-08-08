@@ -67,23 +67,31 @@ BookingChores.CleanUp = async () => {
     let usersPen = [];
     let bookId = [];
     penUser.forEach((item) => {
-      usersPen.push(`'${item}'`);
+      usersPen.push(item);
     });
     idBook.forEach((item) => {
-      bookId.push(`'${item}'`);
+      bookId.push(item);
     });
+
+    const uPenHolder = usersPen.map(() => "?").join(",");
     const resuser = await client.query(
-      `SELECT id_user, penalty_until from mst_user where id_user IN (${usersPen.join(
-        ","
-      )}) and penalty_until = null ;`
+      `SELECT id_user, penalty_until FROM mst_user
+      WHERE id_user IN (${uPenHolder})
+      AND 
+      penalty_until IS null`,
+      [usersPen.join(",")]
     );
-    let userPen = resuser[0].map((item) => `'${item.id_user}'`);
-    let upPen = await BookingChores.userPenalty(userPen, client);
+    let userPen = resuser[0].map((item) => item.id_user);
+
+    await BookingChores.userPenalty(userPen, client);
+
+    const bIdHolder = bookId.map(() => "?").join(",");
     const resUpBook = await client.query(
       `UPDATE req_book SET is_active = 'F', approval = 'finished'
       WHERE TIMESTAMP(CONCAT( book_date, ' ', time_end )) + INTERVAL 15 MINUTE < NOW()
       AND
-      id_book IN (${bookId.join(",")})`
+      id_book IN (${bIdHolder})`,
+      [bookId.join(",")]
     );
     await client.commit();
     return "success cleaning booking";
