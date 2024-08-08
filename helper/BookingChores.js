@@ -80,8 +80,8 @@ BookingChores.CleanUp = async () => {
     let userPen = resuser[0].map((item) => `'${item.id_user}'`);
     let upPen = await BookingChores.userPenalty(userPen, client);
     const resUpBook = await client.query(
-      `UPDATE req_book SET is_active = 'F'
-      WHERE TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )) + INTERVAL 15 MINUTE < NOW()
+      `UPDATE req_book SET is_active = 'F', approval = 'finished'
+      WHERE TIMESTAMP(CONCAT( book_date, ' ', time_end )) + INTERVAL 15 MINUTE < NOW()
       AND
       id_book IN (${bookId.join(",")})`
     );
