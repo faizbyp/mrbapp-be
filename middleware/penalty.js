@@ -13,7 +13,7 @@ const penalty = async (req, res, next) => {
     const pen = select[0][0].penalty_until;
     let penalty = null;
     if (pen !== null) {
-      penalty = moment(pen).format("dddd, DD-MM-YYYY");
+      penalty = moment(pen).format("dddd, DD-MM-YYYY, HH:mm");
     }
     console.log(penalty);
     await client.commit();
