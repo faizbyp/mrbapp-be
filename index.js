@@ -45,10 +45,10 @@ NotificationManager.ReRunCron();
 NotificationManager.ReRunCronMail();
 NotificationManager.CleanUpCron();
 
-app.listen(process.env.PORT, () => {
-  console.log(`App running on ${process.env.PORT}`);
-});
-
-// const server = https.createServer(servOption, app).listen(port, () => {
-//   console.log(`App running on ${port}`);
+// app.listen(process.env.PORT, () => {
+//   console.log(`App running on ${process.env.PORT}`);
 // });
+
+const server = https.createServer(servOption, app).listen(port, () => {
+  console.log(`App running on ${port}`);
+});
