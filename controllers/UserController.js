@@ -36,7 +36,7 @@ const UserController = {
       const password = req.body.password;
       const now = new Date();
       const checkUserData = await client.query(
-        "SELECT email, username, password, nama, id_user, role_id FROM MST_USER where username = ? or email = ?",
+        "SELECT email, username, password, nama, id_user, role_id FROM mst_user where username = ? or email = ?",
         [emailoruname, emailoruname]
       );
       if (checkUserData[0].length === 0) {
