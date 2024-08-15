@@ -27,9 +27,12 @@ const RoomController = {
       let promise = [];
       rooms.forEach((item) => {
         promise.push(
-          client.query(`SELECT MF.nama from fas_room FR LEFT JOIN mst_fas MF
-        ON fr.id_fasilitas = MF.id_fasilitas 
-        WHERE id_ruangan = '${item.id_ruangan}'`)
+          client.query(
+            `SELECT MF.nama from fas_room FR LEFT JOIN mst_fas MF
+        ON FR.id_fasilitas = MF.id_fasilitas 
+        WHERE id_ruangan = ?`,
+            item.id_ruangan
+          )
         );
       });
       const dataGet = await Promise.all(promise);
