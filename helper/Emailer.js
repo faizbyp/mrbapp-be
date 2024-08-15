@@ -87,7 +87,7 @@ class Mailer {
   }
 
   async newBooking(data, id_ticket) {
-    const adminEmail = "faizbyp@gmail.com";
+    const adminEmail = "anggi.pranasa@hotmail.com";
     const setup = {
       from: process.env.SMTP_USERNAME,
       to: adminEmail,
