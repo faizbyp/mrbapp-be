@@ -84,7 +84,7 @@ const BookReqController = {
       await client.beginTransaction();
       const value = req.params.id_book;
       const query =
-        "SELECT req_book.*, mst_user.username, mst_user.email FROM req_book LEFT JOIN mst_user ON req_book.id_user = mst_user.id_user AND id_book = ?";
+        "SELECT req_book.*, mst_user.username, mst_user.email FROM req_book LEFT JOIN mst_user ON req_book.id_user = mst_user.id_user WHERE id_book = ?";
       const data = await client.query(query, value);
       await client.commit();
       res.status(200).send(data[0][0]);
