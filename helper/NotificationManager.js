@@ -30,7 +30,10 @@ NotificationManager.CreateNewCron = async (
       },
     }));
     const dateNotif = moment(timeSched).format();
-    const schedule = moment(timeSched).format("s m H D M *");
+    let schedule = moment(timeSched).format("s m H D M *");
+    if (Intl.DateTimeFormat().resolvedOptions().timeZone !== "Asia/Jakarta") {
+      schedule = moment(timeSched).subtract(7, "hours").format("s m H D M *");
+    }
     const payload = [id_book, dateNotif, 0, id_notif, title, message, "push"];
     const insertSched = await client.query(
       "INSERT INTO push_sched(id_req, notif_time, is_pushed, id_notif, title_notif, message, type) VALUES(?,?,?,?,?,?,?) ;",
@@ -154,7 +157,10 @@ NotificationManager.ReRunCron = async () => {
     WHERE PS.is_pushed = 0 AND PS.type = 'push'`);
 
     dataCron.forEach((item) => {
-      const schedule = moment(item.notif_time).format("s m H D M *");
+      let schedule = moment(item.notif_time).format("s m H D M *");
+      if (Intl.DateTimeFormat().resolvedOptions().timeZone !== "Asia/Jakarta") {
+        schedule = moment(item.notif_time).subtract(7, "hours").format("s m H D M *");
+      }
       // console.log(schedule);
       if (schedule !== "Invalid date") {
         cron.schedule(schedule, () => rerunNotif(item), {
@@ -187,7 +193,10 @@ NotificationManager.CreateNewCronMail = async (timeSched, data) => {
     const [query, value] = await Client.insertQuery(payload, "push_sched");
     await client.query(query, value);
     const Email = new Emailer();
-    const schedule = moment(timeSched).format("s m H D M *");
+    let schedule = moment(timeSched).format("s m H D M *");
+    if (Intl.DateTimeFormat().resolvedOptions().timeZone !== "Asia/Jakarta") {
+      schedule = moment(timeSched).subtract(7, "hours").format("s m H D M *");
+    }
     console.log(schedule);
     cron.schedule(
       schedule,
@@ -234,7 +243,10 @@ NotificationManager.ReRunCronMail = async () => {
       WHERE PS.is_pushed = 0 AND PS.type = 'email'`);
 
     dataCron.forEach((item) => {
-      const schedule = moment(item.notif_time).format("s m H D M *");
+      let schedule = moment(item.notif_time).format("s m H D M *");
+      if (Intl.DateTimeFormat().resolvedOptions().timeZone !== "Asia/Jakarta") {
+        schedule = moment(item.notif_time).subtract(7, "hours").format("s m H D M *");
+      }
       console.log(schedule);
       if (schedule !== "Invalid date") {
         cron.schedule(
