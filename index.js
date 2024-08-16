@@ -40,7 +40,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(routers);
-app.use("/static", express.static("public")); // http://localhost:5000/static/img/office1.jpg
+app.use("/be-api/static", express.static("public")); // http://localhost:5000/static/img/office1.jpg
 NotificationManager.ReRunCron();
 NotificationManager.ReRunCronMail();
 NotificationManager.CleanUpCron();
