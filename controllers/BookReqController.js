@@ -6,10 +6,10 @@ const moment = require("moment");
 const uuid = require("uuidv4");
 
 // CASE
-//           WHEN NOW() > upcoming_time AND NOW() < start_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Oncoming'
-//           WHEN NOW() > start_time AND NOW() < end_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Ongoing'
-//           WHEN NOW() < start_time AND BK.is_active = 'T' THEN 'Pending'
-//           WHEN NOW() > end_time OR BK.is_active = 'F' OR BK.approval = 'rejected' THEN 'Inactive'
+//           WHEN CONVERT_TZ(NOW(), '+00:00', '+07:00') > upcoming_time AND CONVERT_TZ(NOW(), '+00:00', '+07:00') < start_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Oncoming'
+//           WHEN CONVERT_TZ(NOW(), '+00:00', '+07:00') > start_time AND CONVERT_TZ(NOW(), '+00:00', '+07:00') < end_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Ongoing'
+//           WHEN CONVERT_TZ(NOW(), '+00:00', '+07:00') < start_time AND BK.is_active = 'T' THEN 'Pending'
+//           WHEN CONVERT_TZ(NOW(), '+00:00', '+07:00') > end_time OR BK.is_active = 'F' OR BK.approval = 'rejected' THEN 'Inactive'
 //           ELSE ''
 //         END AS status
 
@@ -446,9 +446,9 @@ const BookReqController = {
           AND
           approval = 'approved'
           AND
-          book_date = DATE_FORMAT(NOW(), '%Y-%m-%d')
+          book_date = DATE_FORMAT(CONVERT_TZ(NOW(), '+00:00', '+07:00'), '%Y-%m-%d')
           AND
-          curtime() BETWEEN (time_start - INTERVAL 15 MINUTE) AND (time_start + INTERVAL 15 MINUTE)
+          CONVERT_TZ(CURTIME(), '+00:00', '+07:00') BETWEEN (time_start - INTERVAL 15 MINUTE) AND (time_start + INTERVAL 15 MINUTE)
         ) 
         `,
         [id_user]
@@ -484,9 +484,9 @@ const BookReqController = {
           AND
           approval = 'approved'
           AND
-          book_date = DATE_FORMAT(NOW(), '%Y-%m-%d')
+          book_date = DATE_FORMAT(CONVERT_TZ(NOW(), '+00:00', '+07:00'), '%Y-%m-%d')
           AND
-          curtime() >= time_start
+          CONVERT_TZ(CURTIME(), '+00:00', '+07:00') >= time_start
         ) 
         `,
         [id_user]

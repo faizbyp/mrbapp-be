@@ -372,7 +372,7 @@ const UserController = {
       const updateData = await client.query(
         `
         UPDATE mst_user SET penalty_until = null, penalty_ctr = 0
-        WHERE id_user = ? AND penalty_until < NOW() 
+        WHERE id_user = ? AND penalty_until < CONVERT_TZ(NOW(), '+00:00', '+07:00') 
         `,
         [id_user]
       );

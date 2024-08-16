@@ -50,7 +50,7 @@ BookingChores.CleanUp = async () => {
       FROM
         req_book BOOK 
       WHERE
-        TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )) + INTERVAL 15 MINUTE < NOW()
+        TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )) + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), '+00:00', '+07:00')
         AND
         IS_ACTIVE = 'T'
         AND
@@ -88,7 +88,7 @@ BookingChores.CleanUp = async () => {
     const bIdHolder = bookId.map(() => "?").join(",");
     const resUpBook = await client.query(
       `UPDATE req_book SET is_active = 'F', approval = 'finished'
-      WHERE TIMESTAMP(CONCAT( book_date, ' ', time_end )) + INTERVAL 15 MINUTE < NOW()
+      WHERE TIMESTAMP(CONCAT( book_date, ' ', time_end )) + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), '+00:00', '+07:00')
       AND
       id_book IN (${bIdHolder})`,
       [bookId.join(",")]

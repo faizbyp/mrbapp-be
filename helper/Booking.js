@@ -12,7 +12,7 @@ const BookingChores = {
       FROM
         ( SELECT id_book, id_user, id_ruangan, book_date, time_start, time_end, is_active FROM req_book ) BOOK 
       WHERE
-        TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_end)) < NOW() AND IS_ACTIVE = 'T'`);
+        TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_end)) < CONVERT_TZ(NOW(), '+00:00', '+07:00') AND IS_ACTIVE = 'T'`);
 
       const expiredBook = res[0];
       const penUser = new Set(); // Using Set to automatically handle unique user ids

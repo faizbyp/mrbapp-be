@@ -76,11 +76,11 @@ const RoomController = {
                 req_book 
               WHERE 
                 (
-                  curtime() BETWEEN time_start 
+                  CONVERT_TZ(CURTIME(), '+00:00', '+07:00') BETWEEN time_start 
                   AND time_end 
-                  OR DATE_ADD(NOW(), INTERVAL ? HOUR) BETWEEN time_start 
+                  OR DATE_ADD(CONVERT_TZ(NOW(), '+00:00', '+07:00'), INTERVAL ? HOUR) BETWEEN time_start 
                   AND time_end 
-                  AND book_date = DATE_FORMAT(NOW(), '%Y-%m-%d')
+                  AND book_date = DATE_FORMAT(CONVERT_TZ(NOW(), '+00:00', '+07:00'), '%Y-%m-%d')
                 )
             )
         `,
