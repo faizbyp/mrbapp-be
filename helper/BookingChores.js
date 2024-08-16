@@ -23,7 +23,7 @@ BookingChores.userPenalty = async function (usersId, client) {
         ELSE penalty_ctr + 1 
       END
       WHERE id_user IN (${placeholder})`,
-      [usersId]
+      usersId
     );
     const setPenalty = await client.query(
       `UPDATE mst_user SET penalty_until = ?
@@ -91,7 +91,7 @@ BookingChores.CleanUp = async () => {
       WHERE TIMESTAMP(CONCAT( book_date, ' ', time_end )) + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), '+00:00', '+07:00')
       AND
       id_book IN (${bIdHolder})`,
-      [bookId.join(",")]
+      bookId
     );
     await client.commit();
     return "success cleaning booking";
