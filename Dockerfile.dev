@@ -1,0 +1,29 @@
+FROM node:20-alpine
+
+# RUN sudo echo "172.22.2.99 erpdev-gm erpdev-gm.gamasap.com" >> /etc/hosts
+# COPY startup.sh /usr/local/bin/startup.sh
+# RUN chmod +x /usr/local/bin/startup.sh
+
+# ENTRYPOINT ["/usr/local/bin/startup.sh"]
+
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# # Install npm dependencies
+RUN npm install 
+RUN npm install -g pm2
+
+# Copy application files
+COPY . .
+
+# # Expose port
+EXPOSE 443
+EXPOSE 80
+EXPOSE 5000
+EXPOSE 44300
+
+# # Start the application using pm2-runtime
+CMD ["pm2-runtime", "start", "ecosystem.config.js", "--env", "development"]
