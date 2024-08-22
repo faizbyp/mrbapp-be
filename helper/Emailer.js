@@ -87,7 +87,10 @@ class Mailer {
   }
 
   async newBooking(data, id_ticket) {
-    const adminEmail = "anggi.pranasa@hotmail.com";
+    let adminEmail = ["anggi.pranasa@hotmail.com"];
+    if (process.env.MYSQLDB === "mrbapp") {
+      adminEmail.push("nita.cahyani@kpn-corp.com");
+    }
     const setup = {
       from: process.env.SMTP_USERNAME,
       to: adminEmail,
