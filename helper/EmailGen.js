@@ -107,6 +107,10 @@ EmailGen.NewBookMail = (data, id_ticket) => {
   </p>
   <table style="width: 100%">
     <tr>
+      <td style="width:25%">User Name</td>
+      <td>${data.nama}</td>
+    </tr>
+    <tr>
       <td style="width:25%">ID Ticket</td>
       <td>${id_ticket}</td>
     </tr>

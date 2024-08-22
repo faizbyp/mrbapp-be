@@ -59,7 +59,11 @@ const BookReqController = {
       const [query, value] = await Client.insertQuery(payload, "req_book");
       await client.query(query, value);
       console.log(query);
-      const q = await client.query("SELECT id_ticket from req_book where id_book = ?", [id_book]);
+      const n = await client.query("SELECT nama FROM mst_user WHERE id_user = ?", [
+        payload.id_user,
+      ]);
+      Object.defineProperty(payload, "nama", { value: n[0][0].nama });
+      const q = await client.query("SELECT id_ticket FROM req_book where id_book = ?", [id_book]);
       const id_ticket = q[0][0].id_ticket;
       const Email = new Emailer();
       await Email.newBooking(payload, id_ticket);
