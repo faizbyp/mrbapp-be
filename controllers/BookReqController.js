@@ -400,6 +400,7 @@ const BookReqController = {
       const payload = {
         check_out: "T",
         is_active: "F",
+        approval: "finished",
       };
       console.log(payload);
       await client.beginTransaction();
