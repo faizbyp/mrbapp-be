@@ -169,6 +169,28 @@ const RoomController = {
       client.release();
     }
   },
+
+  getRoomDetails: async (req, res) => {
+    const Client = new DbConn();
+    const client = await Client.initConnection();
+    const id = req.params.id_ruangan;
+    try {
+      const get = await client.query(
+        `SELECT * FROM mst_room
+        LEFT JOIN mst_category
+        ON mst_room.category = mst_category.id_category
+        WHERE mst_room.id_ruangan = ?`,
+        [id]
+      );
+      const room = get[0][0];
+      res.status(200).send(room);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send(error);
+    } finally {
+      client.release();
+    }
+  },
 };
 
 module.exports = RoomController;
