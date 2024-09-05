@@ -20,8 +20,15 @@ const RoomController = {
   getAllRoomWithFac: async (req, res) => {
     const Client = new DbConn();
     const client = await Client.initConnection();
+    const id_room = req.query.id_room || null;
     try {
-      const getroom = await client.query("SELECT * from mst_room");
+      const getroom = await client.query(
+        `SELECT * from mst_room
+        LEFT JOIN mst_category
+          ON mst_room.category = mst_category.id_category
+        WHERE (id_ruangan = ? OR ? IS NULL)`,
+        [id_room, id_room]
+      );
       const rooms = getroom[0];
       let roomFac = [];
       let promise = [];
@@ -176,9 +183,18 @@ const RoomController = {
     const id = req.params.id_ruangan;
     try {
       const get = await client.query(
-        `SELECT * FROM mst_room
+        `SELECT
+          mst_fas.nama AS fasilitas,
+          mst_room.*,
+          mst_category.*,
+          fas_room.*
+        FROM mst_room
         LEFT JOIN mst_category
-        ON mst_room.category = mst_category.id_category
+          ON mst_room.category = mst_category.id_category
+        LEFT JOIN fas_room
+          ON mst_room.id_ruangan = fas_room.id_ruangan
+        LEFT JOIN mst_fas
+          on fas_room.id_fasilitas = mst_fas.id_fasilitas
         WHERE mst_room.id_ruangan = ?`,
         [id]
       );
