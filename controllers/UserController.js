@@ -5,6 +5,7 @@ const uuid = require("uuidv4");
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
 const { hashPassword, validatePassword } = require("../middleware/hashpass");
+const convertTZ = require("../helper/helper");
 
 const UserController = {
   refreshToken: async (req, res) => {
@@ -34,7 +35,10 @@ const UserController = {
       await client.beginTransaction();
       const emailoruname = req.body.username;
       const password = req.body.password;
-      const now = new Date();
+      let now = new Date();
+      if (process.env.MYSQLDB === "mrbapp") {
+        now = convertTZ(now, "Asia/Jakarta");
+      }
       const checkUserData = await client.query(
         "SELECT email, username, password, nama, id_user, role_id FROM mst_user where username = ? or email = ?",
         [emailoruname, emailoruname]

@@ -8,6 +8,9 @@ const BookingChores = {};
 
 BookingChores.userPenalty = async function (usersId, client) {
   let now = new Date();
+  if (process.env.MYSQLDB === "mrbapp") {
+    now = convertTZ(now, "Asia/Jakarta");
+  }
   now = moment(now).add(3, "days");
   try {
     console.log("usersId", usersId);

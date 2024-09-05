@@ -32,7 +32,10 @@ const BookReqController = {
     const data = req.body.data;
     const Client = new DbConn();
     const client = await Client.initConnection();
-    const today = new Date();
+    let today = new Date();
+    if (process.env.MYSQLDB === "mrbapp") {
+      today = convertTZ(today, "Asia/Jakarta");
+    }
     const id_book = uuid.uuid();
     const id_notif = uuid.uuid();
     const payload = {
