@@ -4,6 +4,7 @@ const Notif = require("../helper/NotificationManager");
 const cron = require("node-cron");
 const moment = require("moment");
 const uuid = require("uuidv4");
+const convertTZ = require("../helper/helper");
 
 // CASE
 //           WHEN CONVERT_TZ(NOW(), '+00:00', '+07:00') > upcoming_time AND CONVERT_TZ(NOW(), '+00:00', '+07:00') < start_time AND BK.is_active = 'T' AND BK.approval = 'approved' THEN 'Oncoming'
