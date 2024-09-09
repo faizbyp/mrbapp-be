@@ -324,6 +324,8 @@ const UserController = {
       } else {
         res.status(500).send(error.message);
       }
+    } finally {
+      client.release();
     }
   },
 

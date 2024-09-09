@@ -273,6 +273,7 @@ const BookReqController = {
         [userid, book_date, book_date, active, active, status, status, limit]
       );
       const data = showData[0];
+      await client.commit();
       res.status(200).send({ data: data });
     } catch (error) {
       await client.rollback();
@@ -289,13 +290,13 @@ const BookReqController = {
 
   showBookbyRoom: async (req, res) => {
     const Client = new DbConn();
-    await Client.init();
+    const client = await Client.initConnection();
+    const roomId = req.query.roomid;
     try {
-      const roomId = req.query.roomid;
       if (roomId === undefined) {
         throw Error("Request Error");
       }
-      const get = await Client.select(
+      const get = await client.query(
         "SELECT * FROM req_book where id_ruangan = ? and is_active = 'F'",
         [roomId]
       );
@@ -304,6 +305,8 @@ const BookReqController = {
     } catch (error) {
       console.log(error);
       res.status(500).send(error);
+    } finally {
+      client.release();
     }
   },
 
