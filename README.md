@@ -26,8 +26,16 @@ docker buildx build --platform linux/arm64 -t faizbyp/mrbapp-be:x.x.x -f Dockerf
 
 2. Test Locally
 
+- Development
+
 ```bash
 docker run -p 5000:5000 --env-file .env.development faizbyp/mrbapp-be:x.x.x
+```
+
+- Production
+
+```bash
+docker run -p 5000:5000 --env-file .env.production faizbyp/mrbapp-be:x.x.x
 ```
 
 3. Push the image to Docker Hub.
