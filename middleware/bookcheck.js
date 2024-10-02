@@ -26,7 +26,7 @@ const checkBook = async (req, res, next) => {
       (req_book.time_start < ? AND req_book.time_end > ?)
     ) ;
     `,
-      [room, book_date, time_start, time_end]
+      [room, book_date, time_end, time_start]
     );
     if (isBooked[0].length > 0) {
       res.status(400).send({
