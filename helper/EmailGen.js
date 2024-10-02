@@ -140,7 +140,7 @@ EmailGen.NewBookMail = (data, id_ticket) => {
     </tr>
   </table>
   <br>
-  <a href="https://mrbapp.nematodez.my.id/admin/approval/${
+  <a href="https://roomeet.gamasap.com/admin/approval/${
     data.id_book
   }">Click here to check details</a>
   <hr />
@@ -191,7 +191,7 @@ EmailGen.reminderMail = (data) => {
     </tr>
   </table>
   <br>
-  <a href="https://mrbapp.nematodez.my.id/dashboard">Please check in on your dashboard</a>
+  <a href="https://roomeet.gamasap.com/dashboard">Please check in on your dashboard</a>
   <hr />
   <p>Thank you.</p>
 </main>`;
