@@ -195,7 +195,8 @@ const BookReqController = {
       const approval = req.query.approval || null;
       const room = req.query.room || null;
 
-      let approvalFilter = approval === "approved_finished" ? ["approved", "finished"] : [approval];
+      let approvalFilter =
+        approval === "calendar" ? ["approved", "finished", "pending"] : [approval];
       let approvalPlaceholders = approvalFilter.map(() => "?").join(",");
 
       const showall = await client.query(
