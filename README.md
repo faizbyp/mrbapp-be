@@ -6,6 +6,8 @@
 npm run server_dev
 ```
 
+> If the app won't connect to the API, consider checking the `/index.js` file and check between server listen HTTP or HTTPS
+
 ## Deployment
 
 1. Create Docker Image based on the environment.
