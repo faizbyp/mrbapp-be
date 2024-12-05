@@ -3,6 +3,11 @@ const fs = require("fs");
 const path = require("path");
 const EmailGen = require("./EmailGen");
 
+let adminEmail = ["anggi.pranasa@hotmail.com"];
+if (process.env.MYSQLDB === "mrbapp") {
+  adminEmail.push("nita.cahyani@kpn-corp.com");
+}
+
 class Mailer {
   constructor() {
     this.tp = mailer.createTransport({
@@ -87,15 +92,28 @@ class Mailer {
   }
 
   async newBooking(data, id_ticket) {
-    let adminEmail = ["anggi.pranasa@hotmail.com"];
-    if (process.env.MYSQLDB === "mrbapp") {
-      adminEmail.push("nita.cahyani@kpn-corp.com");
-    }
     const setup = {
       from: process.env.SMTP_USERNAME,
       to: adminEmail,
       subject: "Roomeet - New Booking",
       html: EmailGen.NewBookMail(data, id_ticket),
+    };
+    try {
+      const send = await this.tp.sendMail(setup);
+      console.log("success", send);
+      return adminEmail;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async editedBooking(data, id_ticket, id_book) {
+    const setup = {
+      from: process.env.SMTP_USERNAME,
+      to: adminEmail,
+      subject: "Roomeet - Edited Booking",
+      html: EmailGen.EditBookMail(data, id_ticket, id_book),
     };
     try {
       const send = await this.tp.sendMail(setup);

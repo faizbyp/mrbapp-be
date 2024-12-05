@@ -142,10 +142,18 @@ const BookReqController = {
       const [query, value] = Client.updateQuery(payload, { id_book: id_book }, "req_book");
       const updateData = await client.query(query, value);
       const q = await client.query("SELECT id_ticket from req_book where id_book = ?", [id_book]);
+      const id_ticket = q[0][0].id_ticket;
       await client.commit();
+
+      const n = await client.query("SELECT nama FROM mst_user WHERE id_user = ?", [data.id_user]);
+      Object.defineProperty(data, "nama", { value: n[0][0].nama });
+
+      const Email = new Emailer();
+      await Email.editedBooking(data, id_ticket, id_book);
+
       res.status(200).send({
         message: "Book updated",
-        id_ticket: q[0][0].id_ticket,
+        id_ticket: id_ticket,
       });
       console.log(query, value);
       console.log(updateData);
