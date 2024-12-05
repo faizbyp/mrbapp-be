@@ -108,6 +108,7 @@ const BookReqController = {
   },
 
   editBook: async (req, res) => {
+    let today = new Date();
     const Client = new DbConn();
     const client = await Client.initConnection();
     try {
@@ -126,6 +127,8 @@ const BookReqController = {
         prtcpt_ctr: data.participant,
         remark: data.remark,
         approval: "pending",
+        updated_at: today,
+        updated_by: data.id_user,
       };
       await client.beginTransaction();
       console.log("BEFORE", cron.getTasks());
