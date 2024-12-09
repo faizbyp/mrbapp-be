@@ -53,7 +53,7 @@ BookingChores.Penalty = async () => {
       FROM
         req_book BOOK 
       WHERE
-        TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )) + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), '+00:00', '+07:00')
+        TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_start )) + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), '+00:00', '+07:00')
         AND
         is_active = 'T'
         AND
@@ -62,6 +62,26 @@ BookingChores.Penalty = async () => {
         ((check_in = 'T' AND check_out = 'F') OR (check_in = 'F' AND check_out = 'F'))
       `);
     const penaltyUser = pen[0];
+
+    const updateStatus = await client.query(`
+      WITH selected_books AS (
+      SELECT
+        id_book
+      FROM
+        req_book BOOK
+      WHERE
+        TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_start)) + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), '+00:00', '+07:00')
+        AND check_in = 'F'
+        AND is_active = 'T'
+      )
+      UPDATE
+        req_book
+      SET
+        approval = 'finished', is_active = 'F'
+      WHERE
+        id_book IN (SELECT id_book FROM selected_books);
+      `);
+    console.log(`Not checked-in book updated to finished: ${updateStatus[0].affectedRows} book`);
 
     if (penaltyUser.length === 0) {
       return "No user penalty";
