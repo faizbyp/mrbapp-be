@@ -2,3 +2,5 @@ node_modules
 .git
 .env.development
 .env.production
+development.env
+production.env
