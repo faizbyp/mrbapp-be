@@ -516,8 +516,10 @@ const BookReqController = {
           AND
           book_date = DATE_FORMAT(CONVERT_TZ(NOW(), '+00:00', '+07:00'), '%Y-%m-%d')
           AND
-          CONVERT_TZ(CURTIME(), '+00:00', '+07:00') >= time_start
-        ) 
+          CONVERT_TZ(CURTIME(), '+00:00', '+07:00') > time_start
+          AND
+          CONVERT_TZ(CURTIME(), '+00:00', '+07:00') < time_end + INTERVAL 15 MINUTE
+        );
         `,
         [id_user]
       );
