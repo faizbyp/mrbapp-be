@@ -44,77 +44,83 @@ BookingChores.userPenalty = async function (usersId, client) {
 BookingChores.Penalty = async () => {
   const Client = new DbConn();
   const client = await Client.initConnection();
-  const penUser = new Set(); // Using Set to automatically handle unique user ids
+  const penalizedUsers = new Set();
+
   try {
     await client.beginTransaction();
-    const pen = await client.query(`
+
+    // Fetch penalizable bookings
+    const time =
+      process.env.MYSQLDB === "mrbapp" ? "CONVERT_TZ(NOW(), '+00:00', '+07:00')" : "NOW()";
+    const penaltyQuery = `
       SELECT
         id_book, id_user, id_ruangan, book_date, time_start, time_end, is_active, approval, check_in, check_out
       FROM
         req_book BOOK 
       WHERE
-        TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_start )) + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), '+00:00', '+07:00')
-        AND
-        is_active = 'T'
-        AND
-        approval = 'approved'
-        AND
-        ((check_in = 'T' AND check_out = 'F') OR (check_in = 'F' AND check_out = 'F'))
-      `);
-    const penaltyUser = pen[0];
+        (
+          TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_start)) + INTERVAL 15 MINUTE < ${time}
+          AND is_active = 'T'
+          AND approval = 'approved'
+          AND check_in = 'F'
+        )
+        OR
+        (
+          TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_end)) + INTERVAL 15 MINUTE > ${time}
+          AND is_active = 'T'
+          AND approval = 'approved'
+          AND check_out = 'F'
+        );
+    `;
+    const penaltyResults = await client.query(penaltyQuery);
+    const penaltyUserRecords = penaltyResults[0];
 
-    const updateStatus = await client.query(`
+    // Update status of not checked-in bookings
+    const updateStatusQuery = `
       WITH selected_books AS (
-      SELECT
-        id_book
-      FROM
-        req_book BOOK
-      WHERE
-        TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_start)) + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), '+00:00', '+07:00')
-        AND check_in = 'F'
-        AND is_active = 'T'
+        SELECT id_book
+        FROM req_book BOOK
+        WHERE
+          TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_start)) + INTERVAL 15 MINUTE < ${time}
+          AND check_in = 'F'
+          AND is_active = 'T'
       )
-      UPDATE
-        req_book
-      SET
-        approval = 'finished', is_active = 'F'
-      WHERE
-        id_book IN (SELECT id_book FROM selected_books);
-      `);
-    console.log(`Not checked-in book updated to finished: ${updateStatus[0].affectedRows} book`);
+      UPDATE req_book
+      SET approval = 'finished', is_active = 'F'
+      WHERE id_book IN (SELECT id_book FROM selected_books);
+    `;
+    const updateStatusResults = await client.query(updateStatusQuery);
+    console.log(
+      `Not checked-in bookings updated to finished: ${updateStatusResults[0].affectedRows}`
+    );
 
-    if (penaltyUser.length === 0) {
+    if (penaltyUserRecords.length === 0) {
       return "No user penalty";
     }
 
-    penaltyUser.forEach((item) => {
-      penUser.add(item.id_user);
-    });
+    // Collect unique penalized user IDs
+    penaltyUserRecords.forEach((record) => penalizedUsers.add(record.id_user));
+    const uniqueUserIds = Array.from(penalizedUsers);
 
-    let usersPen = [];
+    // Fetch users eligible for penalty
+    const userPlaceholders = uniqueUserIds.map(() => "?").join(",");
+    const usersQuery = `
+      SELECT id_user, penalty_until
+      FROM mst_user
+      WHERE id_user IN (${userPlaceholders})
+    `;
+    const usersResult = await client.query(usersQuery, uniqueUserIds);
+    const usersToPenalize = usersResult[0].map((user) => user.id_user);
 
-    penUser.forEach((item) => {
-      usersPen.push(item);
-    });
-
-    const uPenHolder = usersPen.map(() => "?").join(",");
-    const resuser = await client.query(
-      `SELECT id_user, penalty_until FROM mst_user
-      WHERE id_user IN (${uPenHolder})
-      AND 
-      penalty_until IS null`,
-      [usersPen.join(",")]
-    );
-    let userPen = resuser[0].map((item) => item.id_user);
-
-    await BookingChores.userPenalty(userPen, client);
+    // Apply penalties
+    await BookingChores.userPenalty(usersToPenalize, client);
 
     await client.commit();
-    return "success add penalty";
-    // const updateReqBook = Promise.all(promise);
+    return "Success: Penalty applied";
   } catch (error) {
     await client.rollback();
     console.error(error);
+    throw error; // Ensure the error is propagated
   } finally {
     client.release();
   }
