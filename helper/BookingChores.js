@@ -5,13 +5,16 @@ const NotificationManager = require("./NotificationManager");
 const DbConn = require("./DbTransaction");
 const convertTZ = require("./helper");
 
+// THIS FILE QUERY IS SET TO JAKARTA TIMEZONE ON THE START OF THE TRANSACTIONS
+// SEE COMMENT // PAY ATTENTION!
+
 const BookingChores = {};
 
 BookingChores.userPenalty = async function (usersId, client) {
   let now = new Date();
-  if (process.env.MYSQLDB === "mrbapp") {
-    now = convertTZ(now, "Asia/Jakarta");
-  }
+  // if (process.env.MYSQLDB === "mrbapp") {
+  //   now = convertTZ(now, "Asia/Jakarta");
+  // }
   now = moment(now).add(3, "days");
   try {
     console.log("usersId", usersId);
@@ -50,8 +53,7 @@ BookingChores.Penalty = async () => {
     await client.beginTransaction();
 
     // Fetch penalizable bookings
-    const time =
-      process.env.MYSQLDB === "mrbapp" ? "CONVERT_TZ(NOW(), '+00:00', '+07:00')" : "NOW()";
+    await client.query(`SET time_zone = '+07:00';`); // PAY ATTENTION!
     const penaltyQuery = `
       SELECT
         id_book, id_user, id_ruangan, book_date, time_start, time_end, is_active, approval, check_in, check_out
@@ -59,14 +61,14 @@ BookingChores.Penalty = async () => {
         req_book BOOK 
       WHERE
         (
-          TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_start)) + INTERVAL 15 MINUTE < ${time}
+          TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_start)) + INTERVAL 15 MINUTE < NOW()
           AND is_active = 'T'
           AND approval = 'approved'
           AND check_in = 'F'
         )
         OR
         (
-          TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_end)) + INTERVAL 15 MINUTE > ${time}
+          TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_end)) + INTERVAL 15 MINUTE < NOW()
           AND is_active = 'T'
           AND approval = 'approved'
           AND check_out = 'F'
@@ -81,7 +83,7 @@ BookingChores.Penalty = async () => {
         SELECT id_book
         FROM req_book BOOK
         WHERE
-          TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_start)) + INTERVAL 15 MINUTE < ${time}
+          TIMESTAMP(CONCAT(BOOK.book_date, ' ', BOOK.time_start)) + INTERVAL 15 MINUTE < NOW()
           AND check_in = 'F'
           AND is_active = 'T'
       )
@@ -132,13 +134,14 @@ BookingChores.CleanUp = async () => {
   const idBook = new Set(); // Using Set to automatically handle unique user ids
   try {
     await client.beginTransaction();
+    await client.query(`SET time_zone = '+07:00';`); // PAY ATTENTION!
     const expired = await client.query(`
       SELECT
         id_book, id_user, id_ruangan, book_date, time_start, time_end, is_active
       FROM
         req_book BOOK 
       WHERE
-        TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )) + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), '+00:00', '+07:00')
+        TIMESTAMP(CONCAT( BOOK.book_date, ' ', BOOK.time_end )) + INTERVAL 15 MINUTE < NOW()
         AND
         IS_ACTIVE = 'T'
       `);
@@ -161,13 +164,13 @@ BookingChores.CleanUp = async () => {
     const bIdHolder = bookId.map(() => "?").join(",");
     const resUpBook = await client.query(
       `UPDATE req_book SET is_active = 'F', approval = 'finished'
-      WHERE TIMESTAMP(CONCAT( book_date, ' ', time_end )) + INTERVAL 15 MINUTE < CONVERT_TZ(NOW(), '+00:00', '+07:00')
+      WHERE TIMESTAMP(CONCAT( book_date, ' ', time_end )) + INTERVAL 15 MINUTE < NOW()
       AND
       id_book IN (${bIdHolder})`,
       bookId
     );
     await client.commit();
-    return "success cleaning booking";
+    return "success clean booking";
     // const updateReqBook = Promise.all(promise);
   } catch (error) {
     await client.rollback();
@@ -180,9 +183,10 @@ BookingChores.CleanUp = async () => {
 setInterval(async () => {
   try {
     const penaltyRes = await BookingChores.Penalty();
-    const result = await BookingChores.CleanUp();
+    const cleanUp = await BookingChores.CleanUp();
     await NotificationManager.CleanUpCron();
-    console.log(result, penaltyRes);
+    console.log(penaltyRes);
+    console.log(cleanUp);
   } catch (error) {
     console.log(error);
   }

@@ -14,5 +14,6 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0,
   multipleStatements: false,
 });
+// timezone???
 
 module.exports = pool;
