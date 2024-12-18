@@ -34,9 +34,8 @@ const BookReqController = {
     const Client = new DbConn();
     const client = await Client.initConnection();
     let today = new Date();
-    if (process.env.MYSQLDB === "mrbapp") {
-      today = convertTZ(today, "Asia/Jakarta");
-    }
+    today = convertTZ(today, "Asia/Jakarta");
+
     const id_book = uuid.uuid();
     const id_notif = uuid.uuid();
     const payload = {
@@ -109,6 +108,7 @@ const BookReqController = {
 
   editBook: async (req, res) => {
     let today = new Date();
+    today = convertTZ(today, "Asia/Jakarta");
     const Client = new DbConn();
     const client = await Client.initConnection();
     try {
